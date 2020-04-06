@@ -39,12 +39,12 @@ class ChargingStation:
             # si on veut charger plus de power que possible on cap à pmax
             new_stock = { "slow" : [0,0], "fast" : [0,0] }
 
-            new_stock[slow][0] = self.battery_stock["slow"][time][0] + (self.efficiency*max(0,load_battery["slow"][time][0])+min(0,load_battery["slow"][time][0])/self.efficiency)*self.dt
-            new_stock[slow][1] = self.battery_stock["slow"][time][1] + (self.efficiency*max(0,load_battery["slow"][time][1])+min(0,load_battery["slow"][time][1])/self.efficiency)*self.dt
+            new_stock["slow"][0] = self.battery_stock["slow"][time][0] + (self.efficiency*max(0,load_battery["slow"][time][0])+min(0,load_battery["slow"][time][0])/self.efficiency)*self.dt
+            new_stock["slow"][1] = self.battery_stock["slow"][time][1] + (self.efficiency*max(0,load_battery["slow"][time][1])+min(0,load_battery["slow"][time][1])/self.efficiency)*self.dt
             # We update the new stock of each batteries "slow"
 
-            new_stock[fast][0]=self.battery_stock["fast"][time][0] + (self.efficiency*max(0,load_battery["fast"][time][0])+min(0,load_battery["fast"][time][0])/self.efficiency)*self.dt
-            new_stock[fast][1]=self.battery_stock["fast"][time][1] + (self.efficiency*max(0,load_battery["fast"][time][1])+min(0,load_battery["fast"][time][1])/self.efficiency)*self.dt
+            new_stock["fast"][0]=self.battery_stock["fast"][time][0] + (self.efficiency*max(0,load_battery["fast"][time][0])+min(0,load_battery["fast"][time][0])/self.efficiency)*self.dt
+            new_stock["fast"][1]=self.battery_stock["fast"][time][1] + (self.efficiency*max(0,load_battery["fast"][time][1])+min(0,load_battery["fast"][time][1])/self.efficiency)*self.dt
             # We update the new stock of each batteries "fast"
 
 
@@ -85,5 +85,6 @@ class ChargingStation:
 
 CS = ChargingStation()
 t = 0
-load_batterie = {"fast" : np.zeros((48,2)),"slow" : np.zeros((48,2))}
+load_battery = {"fast" : np.zeros((48,2)),"slow" : np.zeros((48,2))}
 load_battery = CS.update_batterie_stock(t,load_battery)
+print(load_battery)
