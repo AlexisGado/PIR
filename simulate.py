@@ -1,7 +1,7 @@
 import numpy as np
 
 
-# importer les differents acteurs
+# import the different players
 
 from players.solar_farm import Solar_farm
 from players.industrial_site import Industrial_site
@@ -23,7 +23,7 @@ class Manager():
         self.prices = np.zeros(48)
         
     
-        ## Données
+        ## Data
 
     L_pv=[0]*48  #photovoltaic production per slot
     L_dem=[0]*48  #industrial needs per slot
@@ -47,7 +47,7 @@ class Manager():
                 demand += load
             else:         #if the player supply energy
                 supply -= load
-            total_load += load   #mesure the balance
+            total_load += load   #measure the balance
 
         return total_load, demand, supply
 
