@@ -10,11 +10,11 @@ from players.charging_station import Charging_station
 
 class Manager():
     
-    def __init__(self): #constructeur
+    def __init__(self): #constructor
         
         self.day = 24
         self.dt = 0.5
-        self.nb_time_steps = int(jour/dt)
+        self.nb_time_steps = int(day/dt)
 
         self.players = {"charging_station": Charging_station(), 
             "solar_farm": Solar_farm(),
