@@ -13,8 +13,8 @@ class ChargingStation:
         self.scenario = {}
         self.bill = np.zeros(48) # Where 5e penalities will be stocked
         self.load = np.zeros(48) # List l4
-        self.load_batterie = {"fast" : np.zeros(48,2),"slow" : np.zeros(48,2)} # How the player wants to charge/discharge the veicules
-        self.battery_stock = {"slow" : np.zeros(49,2), "fast" : np.zeros(49,2)} # State of the batteries
+        self.load_batterie = {"fast" : np.zeros((48,2)),"slow" : np.zeros((48,2))} # How the player wants to charge/discharge the veicules
+        self.battery_stock = {"slow" : np.zeros((49,2)), "fast" : np.zeros((49,2))} # State of the batteries
         self.nb_fast = 2 # Number of Stations Fasts and Lows used
         self.nb_slow = 2
         self.pmax_fast = 22
@@ -85,5 +85,5 @@ class ChargingStation:
 
 CS = ChargingStation()
 t = 0
-load_batterie = {"fast" : np.zeros(48,2),"slow" : np.zeros(48,2)}
+load_batterie = {"fast" : np.zeros((48,2)),"slow" : np.zeros((48,2))}
 load_battery = CS.update_batterie_stock(t,load_battery)
