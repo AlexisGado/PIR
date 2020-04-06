@@ -16,8 +16,8 @@ class Manager():
         self.dt = 0.5
         self.nb_time_steps = int(jour/dt)
 
-        self.players = {"charging_station": Charging_station(data_j1), 
-            "solar_farm": Solar_farm(data_j2),
+        self.players = {"charging_station": Charging_station(), 
+            "solar_farm": Solar_farm(),
             "industrial_site": Industrial_site()}
             
         self.prices = np.zeros(48)
