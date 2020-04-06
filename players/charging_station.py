@@ -18,8 +18,8 @@ class ChargingStation:
         self.nb_fast = 2 # nombres de stations rapides et lentes utilisées
         self.nb_slow = 2
         self.pmax_fast = 22
-        self_pmax_slow = 3
-        self_cmax = 40*4 ## capacité maximal de notre CS quand 4 postes occupés par des voitures
+        self.pmax_slow = 3
+        self.cmax = 40*4 ## capacité maximal de notre CS quand 4 postes occupés par des voitures
 
 
     # Version naive : on suppose que toutes les voitures sont là 24/24 juste pour voir l'update de leur batteries
@@ -28,9 +28,6 @@ class ChargingStation:
 
     def update_batterie_stock(self,time,load_battery):
 
-        cmax = self.scenario["load_charging_station_capacity"][0,time] # Available Capacity
-        pmax = self.scenario["load_charging_station_capacity"][1,time] # Available Power
-        soc = self.scenario["load_charging_station_capacity"][2,time]  # State Of Charge of the vehicles
         nb = {"slow" : self.nb_slow, "fast" : self.nb_fast}
         p_max = {"slow" : 3*self.nb_slow, "fast" : 22*self.nb_fast}
         c_max = {"slow" : 40*self.nb_slow, "fast" : 40*self.nb_fast}
@@ -46,6 +43,7 @@ class ChargingStation:
 
             new_stock[fast]=self.battery_stock["fast"][time] + (self.efficiency*max(0,load_battery["fast"])+min(0,load_battery["fast"])/self.efficiency)*self.dt
             # on calcul le nouveau stock
+
             speed="fast"
 
             if nb[speed]*10 > new_stock[speed] :
@@ -82,3 +80,10 @@ class ChargingStation:
         load_battery = self.load_battery(time)
         load = self.update_batterie_stock(time, load_battery)
         self.load[time] = load["slow"] + load["fast"]
+
+##
+
+CS = ChargingStation
+t = 0
+load_battery = np.zeros(48)
+load_battery = CS.update_batterie_stock(t,load_battery)
