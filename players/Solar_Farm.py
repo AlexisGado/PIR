@@ -14,7 +14,7 @@ class SolarFarm:
         self.max_load=70 #vérifier
 
 
-def update_battery_stock(self, time, load):
+    def update_battery_stock(self, time, load):
         if abs(load) > self.max_load:
             load = self.max_load*np.sign(load) #saturation au maximum de la batterie
 
@@ -32,7 +32,7 @@ def update_battery_stock(self, time, load):
         self.battery_stock[time+1] = new_stock
         return load
 
-def compute_load(self,time):
-    load = self.load_battery[time]
-    lo = self.update_battery_stock(self, time, load)
-    self.load_battery[time] = lo 
+    def compute_load(self,time):
+        load = self.load_battery[time]
+        lo = self.update_battery_stock(self, time, load)
+        self.load_battery[time] = lo 
