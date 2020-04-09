@@ -1,7 +1,7 @@
 import numpy as np
 
 
-# importer les differents acteurs
+# import the different players
 
 from players.solar_farm import Solar_farm
 from players.industrial_site import Industrial_site
@@ -10,25 +10,25 @@ from players.charging_station import Charging_station
 
 class Manager():
     
-    def __init__(self): #constructeur
+    def __init__(self): #constructor
         
         self.day = 24
         self.dt = 0.5
-        self.nb_time_steps = int(jour/dt)
+        self.horizon = int(day/dt) #nb of time steps
 
         self.players = {"charging_station": Charging_station(), 
             "solar_farm": Solar_farm(),
-            "industrial_site": Industrial_site()}
+            "industrial_site": Industrial_site()}  #To be modified
             
-        self.prices = np.zeros(48)
+        self.prices = np.zeros(48) # no external exchanges for now.
         
     
-        ## Données
+        ## Data
 
-    L_pv=[0]*48  #photovoltaic production per slot
-    L_dem=[0]*48  #industrial needs per slot
-    Price=[0]*48 #price reference per slot
-    Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV
+    L_pv=[0]*self.horizon  #photovoltaic production per slot
+    L_dem=[0]*self.horizon  #industrial needs per slot
+    Price=[0]*self.horizon #price reference per slot
+    Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV (8 a.m and 6 p.m for everyone for now)
 
 
     ##Compute the energy balance on a slot
@@ -47,7 +47,7 @@ class Manager():
                 demand += load
             else:         #if the player supply energy
                 supply -= load
-            total_load += load   #mesure the balance
+            total_load += load   #measure the balance
 
         return total_load, demand, supply
 
@@ -59,12 +59,15 @@ class Manager():
         sale = self.prices[time]*supply*self.dt  #sum of sales on the grid
 
         for name, player in self.players.items():
-
+            
+            
+            #first idea for setting the prices :
+            
             if demand != 0:  
                 player.information["grid_buy_price"][time+1] = purchase / (demand*self.dt) #purchasing price per unit of energy
             if supply != 0:
                 player.information["grid_sell_price"][time+1] = sale / (supply*self.dt) #selling price per unit of energy
-
+    
             load = player.load[time]
             if load == 0:
                 continue
@@ -82,7 +85,7 @@ class Manager():
 
     def play(self):
         #non flexible varibale to introduce here
-        for t in range(self.horizon):
+        for t in range(self.horizon): # main loop
             load, demand, supply = self.energy_balance(t)
             self.compute_bills(t, load, demand, supply)
 
