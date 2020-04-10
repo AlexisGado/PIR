@@ -103,7 +103,7 @@ class Manager():
     ##Playing one party 
 
     def play(self):
-        #non flexible varibale to introduce here
+        player.prices=self.prices
         for t in range(self.horizon): # main loop
             load, demand, supply = self.energy_balance(t)
             self.compute_bills(t, load, demand, supply)
