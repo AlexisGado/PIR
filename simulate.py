@@ -7,6 +7,14 @@ from players.solar_farm import Solar_farm
 from players.industrial_site import Industrial_site
 from players.charging_station import Charging_station
 
+## Data
+
+L_pv=[0]*self.horizon  #photovoltaic production per slot
+L_dem=[0]*self.horizon  #industrial needs per slot
+avg_price=0.07  #average price of Mwh
+prices=[[avg_price]*self.horizon, [2*avg_price]*self.horizon, [0.5*avg_price]*self.horizon] #price reference per slot
+Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV (8 a.m and 6 p.m for everyone for now)
+
 
 class Manager():
     
@@ -23,13 +31,7 @@ class Manager():
         self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
         
     
-        ## Data
-
-    L_pv=[0]*self.horizon  #photovoltaic production per slot
-    L_dem=[0]*self.horizon  #industrial needs per slot
-    Price=[0]*self.horizon #price reference per slot
-    Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV (8 a.m and 6 p.m for everyone for now)
-
+    
 
     ##Compute the energy balance on a slot
     def energy_balance(self, time):
