@@ -20,7 +20,7 @@ class Manager():
             "solar_farm": Solar_farm(),
             "industrial_site": Industrial_site()}  #To be modified
             
-        self.prices = np.zeros(48) # no external exchanges for now.
+        self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
         
     
         ## Data
