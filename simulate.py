@@ -3,7 +3,7 @@ import numpy as np
 
 # import the different players
 
-from players.solar_farm import Solar_farm
+from players.Solar_Farm import Solar_farm
 from players.IC import IndustrialConsumer
 from players.charging_station import ChargingStation
 
