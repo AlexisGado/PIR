@@ -11,8 +11,7 @@ from players.charging_station import Charging_station
 
 L_pv=[0]*self.horizon  #photovoltaic production per slot
 L_dem=[0]*self.horizon  #industrial needs per slot
-avg_price=0.07  #average price of Mwh
-prices=[[avg_price]*self.horizon, [2*avg_price]*self.horizon, [0.5*avg_price]*self.horizon] #price reference per slot
+prices=numpy.loadtxt("prices_class_1.csv")
 Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV (8 a.m and 6 p.m for everyone for now)
 
 
