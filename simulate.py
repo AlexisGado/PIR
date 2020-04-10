@@ -21,11 +21,11 @@ class Manager():
         
         self.day = 24
         self.dt = 0.5
-        self.horizon = int(day/dt) #nb of time steps
+        self.horizon = int(self.day/self.dt) #nb of time steps
 
-        self.players = {"charging_station": Charging_station(), 
-            "solar_farm": Solar_farm(),
-            "industrial_site": Industrial_site()}  #To be modified
+        self.players = {"charging_station": ChargingStation(), 
+            "solar_farm": SolarFarm(),
+            "industrial_site": IndustrialConsumer(0,0)}  #To be modified
             
         self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
         
