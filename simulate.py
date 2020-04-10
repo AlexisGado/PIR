@@ -54,32 +54,50 @@ class Manager():
 
     ## Compute the bill of each players 
     def compute_bills(self, time, load, demand, supply):
-
-        purchase = self.prices[time]*demand*self.dt  #sum of purchases on the grid
-        sale = self.prices[time]*supply*self.dt  #sum of sales on the grid
-
-        for name, player in self.players.items():
-            
-            
-            #first idea for setting the prices :
-            
-            if demand != 0:  
-                player.information["grid_buy_price"][time+1] = purchase / (demand*self.dt) #purchasing price per unit of energy
-            if supply != 0:
-                player.information["grid_sell_price"][time+1] = sale / (supply*self.dt) #selling price per unit of energy
     
-            load = player.load[time]
-            if load == 0:
-                continue
+        internal_exchange=min(demand,supply)  #what is going to be exchange on the grid
+        external_exchange=abs(total_load)   #the quantity of energy in surplus on the grid
+        internal_price=self.prices["internal"][time]
+        external_selling_price=self.prices["external_sale"][time]
+        external_purchasing_price=self.prices["external_purchase"][time]
 
-            if load >= 0:  #if the player needs energy
-                cost = purchase * load / demand   #the player pays its proportion of purchase
-                player.bill[time] += cost
-                player.information["my_buy_price"][time+1] = purchase / (demand*self.dt)
-            else:   #if the player supply energy
-                revenue = sale * load / supply
-                player.bill[time] += revenue  #the player earns its proportion of supply
-                player.information["my_sell_price"][time+1] = sale / (supply*self.dt)
+        if total_load>=0:  #if there is not enough energy on the grid
+
+            for name, player in self.players.items():
+
+                load=player.load[time]
+
+                if load>0: #if the player needs energy
+
+                    cost= (internal_price*(internal_exchange/demand) + external_purchasing_price*(external_exchange/demand))*load*dt
+                            #the players pays in proportion on and off the grid for his demand
+                    player.bill[time] += cost
+                    player.information["proportion_internal_demand"][time] = internal_exchange/demand
+
+                elif load<0: #if the player supply energy
+
+                    revenue=internal_price*load*dt #there is enough demand of engery on the grid
+                    player.bill[time] += revenue
+                    player.information["proportion_internal_supply"][time]=1
+
+        else :   #if the offer is too consequent on the grid
+
+            for name, player in self.players.items():
+
+                load=player.load[time]
+
+                if load>0: #if the player needs energy
+
+                    cost=internal_price*load*dt  #there is enough energy produced on the grid
+                    player.bill[time] += cost
+                    player.information["proportion_internal_demand"][time] = 1
+
+                elif load<0:  #if the player supply energy
+
+                    revenue= (internal_price*(internal_exchange/supply) + external_selling_price*(external_exchange/supply))*load*dt
+                            #the players pays in proportion of his supply
+                    player.bill[time] += revenue
+                    player.information["proportion_internal_supply"][time]=internal_exchange/supply
 
     ##Playing one party 
 
