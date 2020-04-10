@@ -4,8 +4,8 @@ import numpy as np
 # import the different players
 
 from players.solar_farm import Solar_farm
-from players.industrial_site import Industrial_site
-from players.charging_station import Charging_station
+from players.IC import IndustrialConsumer
+from players.charging_station import ChargingStation
 
 ## Data
 
