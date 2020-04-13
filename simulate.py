@@ -9,10 +9,10 @@ from players.charging_station import ChargingStation
 
 ## Data
 
-lv=numpy.loadtxt("lv.csv") #photovoltaic production per slot
-ldem=numpy.loadtxt("load.csv")  #industrial needs per slot
+lv_scenarios=numpy.loadtxt("lv.csv") #photovoltaic production per slot
+ldem_scenarios=numpy.loadtxt("load.csv")  #industrial needs per slot
 prices=numpy.loadtxt("prices_class_1.csv") #internal prices, external purchase prices, external sale prices
-planning=numpy.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car
+planning_scenarios=numpy.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car
 
 
 class Manager():
