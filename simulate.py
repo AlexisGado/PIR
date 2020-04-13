@@ -100,6 +100,18 @@ class Manager():
                             #the players pays in proportion of his supply
                     player.bill[time] += revenue
                     player.information["proportion_internal_supply"][time]=internal_exchange/supply
+                    
+    
+    ## Draw a scenario for the day
+    
+    def draw_random_scenario(self):
+        
+        lv=lv_scenarios[random.randint(0,len(lv_scenarios)-1)] #sunshine data
+        ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios))] #industrial consumer need 
+        p=random.randint(0,len(planning_scenarios[0])/2 -1) 
+        planning=numpy.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
+        
+        return lv,ldem,planning
 
     ##Playing one party 
 
@@ -114,13 +126,6 @@ class Manager():
             load, demand, supply = self.energy_balance(t)
             self.compute_bills(t, load, demand, supply)
 
-    def draw_random_scenario(self):
-        
-        lv=lv_scenarios[random.randint(0,len(lv_scenarios)-1)] #sunshine data
-        ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios))] #industrial consumer need 
-        p=random.randint(0,len(planning_scenarios[0])/2 -1) 
-        planning=numpy.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
-        
-        return lv,ldem,planning
+    
 
 
