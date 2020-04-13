@@ -8,11 +8,12 @@ from players.IC import IndustrialConsumer
 from players.charging_station import ChargingStation
 
 ## Data
-
-lv_scenarios=numpy.loadtxt("lv.csv") #photovoltaic production per slot
-ldem_scenarios=numpy.loadtxt("load.csv")  #industrial needs per slot
 prices=numpy.loadtxt("prices_class_1.csv") #internal prices, external purchase prices, external sale prices
-planning_scenarios=numpy.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car
+
+lv_scenarios=numpy.loadtxt("lv.csv") #photovoltaic production per slot, 100 scenarios
+ldem_scenarios=numpy.loadtxt("load.csv")  #industrial needs per slot, 100 scenarios
+planning_scenarios=numpy.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car, 100 scenarios
+
 
 
 class Manager():
@@ -104,6 +105,8 @@ class Manager():
 
     def play(self):
         
+        lv,ldem,planning=self.draw_random_scenario()
+        
         for name, player in self.players.items():
             player.prices=self.prices
             
@@ -111,6 +114,13 @@ class Manager():
             load, demand, supply = self.energy_balance(t)
             self.compute_bills(t, load, demand, supply)
 
-
+    def draw_random_scenario(self):
+        
+        lv=lv_scenarios[random.randint(0,len(lv_scenarios)-1)] #sunshine data
+        ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios))] #industrial consumer need 
+        p=random.randint(0,len(planning_scenarios[0])/2 -1) 
+        planning=numpy.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
+        
+        return lv,ldem,planning
 
 
