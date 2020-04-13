@@ -9,8 +9,8 @@ from players.charging_station import ChargingStation
 
 ## Data
 
-L_pv=[0]*self.horizon  #photovoltaic production per slot
-L_dem=[0]*self.horizon  #industrial needs per slot
+lv=numpy.loadtxt("lv.csv") #photovoltaic production per slot
+load=numpy.loadtxt("load.csv")  #industrial needs per slot
 prices=numpy.loadtxt("prices_class_1.csv")
 Planning=[[16,36] for i in range(4)] #departure and arrival of the 4 EV (8 a.m and 6 p.m for everyone for now)
 
