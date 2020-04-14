@@ -4,7 +4,7 @@ import random
 
 # import the different players
 
-from players.Solar_Farm import SolarFarm
+from players.solarfarm import SolarFarm
 from players.IC import IndustrialConsumer
 from players.charging_station import ChargingStation
 
