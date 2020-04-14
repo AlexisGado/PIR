@@ -7,14 +7,15 @@ from numpy.random import randint
 
 class ChargingStation:
 
-    def __init__(self):
-        self.dt = 0.5
+    def __init__(self,dt,hori):
+        self.dt = dt
+        self.nb_t = int(hori/dt)
+        self.prices = {"internal" : np.zeros(self.nb_t),"external_purchase" : np.zeros(self.nb_t),"external_sale" : np.zeros(self.nb_t)}
         self.efficiency = 0.95
-        self.scenario = {}
-        self.bill = np.zeros(48) # Where 5e penalities will be stocked
-        self.load = np.zeros(48) # List l4
-        self.load_battery_periode = {"fast" : np.zeros((48,2)),"slow" : np.zeros((48,2))} # How the player wants to charge/discharge the veicules
-        self.battery_stock = {"slow" : np.zeros((49,2)), "fast" : np.zeros((49,2))} # State of the batteries
+        self.bill = np.zeros(self.nb_t) # Where 5e penalities will be stocked
+        self.load = np.zeros(self.nb_t) # List l4
+        self.load_battery_periode = {"fast" : np.zeros((self.nb_t,2)),"slow" : np.zeros((self.nb_t,2))} # How the player wants to charge/discharge the veicules
+        self.battery_stock = {"slow" : np.zeros((self.nb_t+1,2)), "fast" : np.zeros((self.nb_t+1,2))} # State of the batteries
         self.nb_fast_max = 2 # Number of Stations Fasts and Lows max
         self.nb_slow_max = 2
         self.nb_slow = 2 # Number of Stations Fast and Slow currently used
@@ -29,11 +30,9 @@ class ChargingStation:
 
     def update_battery_stock(self,time,load_battery):
         self.nb_cars(time) # We check what cars is here
-        nb = {"slow" : self.nb_slow, "fast" : self.nb_fast}
         p_max = {"slow" : [3*self.here["slow"][0],3*self.here["slow"][1]], "fast" : [22*self.here["fast"][0],22*self.here["fast"][1]]}
         c_max = {"slow" : [40*self.here["slow"][0],40*self.here["slow"][1]], "fast" : [40*self.here["fast"][0],40*self.here["fast"][1]]}
         # p_max and c_max depend on whether the car is here or not.
-
         for speed in ["slow","fast"] :
             for i in range(2):
                 if abs(load_battery[speed][i]) >= p_max[speed][i]:
@@ -72,28 +71,30 @@ class ChargingStation:
                 self.battery_stock[speed][time+1][i]=new_stock[speed][i]
             # Update of batteries stocks
                 if time == self.arrival[speed][i]-1:
-                    self.battery_stock[speed][time+1][i] = self.battery_stock[speed][time][i]-4
+                    self.battery_stock[speed][time+1][i] = self.battery_stock[speed][self.depart[speed][i]][i]-4
                     # When the cars comes back it has lost 4 kWh in the battery
                 self.load_battery_periode[speed][time][i] = load_battery[speed][i]
 
         return load_battery # We return load_battery clear of the player's potential mistakes
 
-    def nb_cars(self,time):
 
+
+
+    def nb_cars(self,time):
         s = 0
         for i in range(self.nb_slow_max):
             if (self.depart["slow"][i]<time) and (self.arrival["slow"][i]>time):
                 s+=1
-                self.here["slow"][i]=1
-            else:
                 self.here["slow"][i]=0
+            else:
+                self.here["slow"][i]=1
         f = 0
         for j in range(self.nb_fast_max):
             if (self.depart["fast"][i]<time) and (self.arrival["fast"][i]>time):
                 f+=1
-                self.here["fast"][i]=1
-            else:
                 self.here["fast"][i]=0
+            else:
+                self.here["fast"][i]=1
         self.nb_slow = s
         self.nb_fast = f
         # Acctualise how many cars and which are at the station at t = time.
@@ -108,18 +109,26 @@ class ChargingStation:
 
 
     def take_decision(self, time):
-        load_battery = {"fast" : np.zeros(2),"slow" : np.zeros(2)}
+        load_battery = {"fast" : np.ones(2),"slow" : np.ones(2)}
         # TO BE COMPLETED
         # Have to return load_battery to put in update_batterie_stock to get the load.
         # load_battery must be in the following format : {"fast" : [load_car_fast_1,load_car_fast_2],"slow" : [load_car_slow_1,load_car_slow_2]}
         return load_battery
 
+
     def observe(self, time, data, price):
-        self.depart = {"slow" : np.array([16,16]), "fast" : np.array([16,16])} # Time of departure of every cars
-        self.arrival = {"slow" : np.array([36,36]), "fast" : np.array([36,36])} # Time of arrival of every cars
+        self.depart = {"slow" : np.array([15,15]), "fast" : np.array([15,15])} # Time of departure of every cars
+        self.arrival = {"slow" : np.array([35,35]), "fast" : np.array([35,35])} # Time of arrival of every cars
         # Save observations for decision making
         pass
-
+    def reset(self):
+        self.bill = np.zeros(self.nb_t)
+        self.load = np.zeros(self.nb_t)
+        self.load_battery_periode = {"fast" : np.zeros((self.nb_t,2)),"slow" : np.zeros((self.nb_t,2))}
+        self.battery_stock = {"slow" : np.zeros((self.nb_t+1,2)), "fast" : np.zeros((self.nb_t+1,2))}
+        self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
+        self.depart = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
+        self.arrival = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
 
     def compute_load(self,time):
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice

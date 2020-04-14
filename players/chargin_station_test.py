@@ -10,5 +10,6 @@ for t in range(48):
     charging_station.observe(t,0,0)
     charging_station.penality(t)
     print (load)
+print(charging_station.battery_stock)
 
 print("tests passed !")
