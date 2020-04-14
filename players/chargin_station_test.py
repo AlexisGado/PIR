@@ -5,7 +5,6 @@ from charging_station import ChargingStation
 
 charging_station = ChargingStation()
 
-t = 0
 for t in range(48):
     load = charging_station.compute_load(t)
     charging_station.observe(t,0,0)

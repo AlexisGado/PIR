@@ -30,7 +30,7 @@ class ChargingStation:
     # No V2G neither
 
     def update_batterie_stock(self,time,load_battery):
-        nb_cars(time) # We check what cars is here
+        self.nb_cars(time) # We check what cars is here
         nb = {"slow" : self.nb_slow, "fast" : self.nb_fast}
         p_max = {"slow" : [3*self.here["slow"][0],3*self.here["slow"][1]], "fast" : [22*self.here["fast"][0],22*self.here["fast"][1]]}
         c_max = {"slow" : [40*self.here["slow"][0],40*self.here["slow"][1]], "fast" : [40*self.here["fast"][0],40*self.here["fast"][1]]}
@@ -98,7 +98,7 @@ class ChargingStation:
         self.nb_slow = s
         self.nb_fast = f
         # acctualise how many cars are at the station at t = time.
-        return 0
+
 
     def penality(self,time):
         for speed in ["slow","fast"] :
