@@ -30,11 +30,11 @@ class Manager():
             "industrial_site": IndustrialConsumer(0,0)}  #To be modified
             
         self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
-        
+
     
     
 
-    ##Compute the energy balance on a slot
+##Compute the energy balance on a slot
     def energy_balance(self, time):
 
         total_load = 0
@@ -55,7 +55,7 @@ class Manager():
         return total_load, demand, supply
 
 
-    ## Compute the bill of each players 
+## Compute the bill of each players 
     def compute_bills(self, time, load, demand, supply):
     
         internal_exchange=min(demand,supply)  #what is going to be exchange on the grid
@@ -103,7 +103,7 @@ class Manager():
                     player.information["proportion_internal_supply"][time]=internal_exchange/supply
                     
     
-    ## Draw a scenario for the day
+## Draw a scenario for the day
     
     def draw_random_scenario(self):
         
@@ -114,7 +114,34 @@ class Manager():
         
         return pv,ldem,planning
 
-    ##Playing one party 
+
+## Transmit data to the player
+
+    def give_info(t,pv,ldem,planning):
+        data_scenario = 
+        { "sun_at_t" : pv[t],
+        "demand_at_t" : ldem[t],
+        "departures_at_t" : planning[0],
+        "arrivals_at_t" : planning[1]}
+        
+        if t>0:
+            prices = 
+            {"internal_price" : self.prices["internal"][t-1],
+            "external_sale_price" : self.prices["external_sale"][t-1],
+            "external_purchase_price" : self.prices["external_purchase"][t-1]}
+            
+            
+            
+        for name, player in self.players.items():
+            
+            if t>0:
+                player.observe(t,data_scenario,prices,self.imbalance[t-1])
+            else:
+                player.observe(t,data_scenario,{},{})
+
+
+
+## Playing one party 
 
     def play(self):
         
@@ -124,5 +151,7 @@ class Manager():
             player.prices=self.prices
             
         for t in range(self.horizon): # main loop
+            
+            give_info(t,pv,ldem)
             load, demand, supply = self.energy_balance(t)
             self.compute_bills(t, load, demand, supply)
