@@ -90,11 +90,11 @@ class ChargingStation:
                 self.here["slow"][i]=1
         f = 0
         for j in range(self.nb_fast_max):
-            if (self.depart["fast"][i]<time) and (self.arrival["fast"][i]>time):
+            if (self.depart["fast"][j]<time) and (self.arrival["fast"][j]>time):
                 f+=1
-                self.here["fast"][i]=0
+                self.here["fast"][j]=0
             else:
-                self.here["fast"][i]=1
+                self.here["fast"][j]=1
         self.nb_slow = s
         self.nb_fast = f
         # Acctualise how many cars and which are at the station at t = time.
