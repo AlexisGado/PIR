@@ -122,9 +122,8 @@ class ChargingStation:
 
 
     def compute_load(self,time):
-        self.load_battery[time]=take_decision(time) # How you charge or discharge is the players choice
-        load_battery = self.load_battery[time]
+        load_battery = self.take_decision(time) # How you charge or discharge is the players choice
         load = self.update_batterie_stock(time, load_battery)
         for i in range(2):
             self.load[time] += load["slow"][i] + load["fast"][i]
-        return self.load
+        return self.load[time]
