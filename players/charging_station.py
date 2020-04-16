@@ -7,10 +7,10 @@ from numpy.random import randint
 
 class ChargingStation:
 
-    def __init__(self,dt,hori):
-        self.dt = dt
-        self.nb_t = int(hori/dt)
-        self.prices = {"internal" : np.zeros(self.nb_t),"external_purchase" : np.zeros(self.nb_t),"external_sale" : np.zeros(self.nb_t)}
+    def __init__(self):
+        self.dt = 0.5
+        self.nb_t = int(24/self.dt)
+        self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.efficiency = 0.95
         self.bill = np.zeros(self.nb_t) # Where 5e penalities will be stocked
         self.load = np.zeros(self.nb_t) # List l4
@@ -26,7 +26,7 @@ class ChargingStation:
         self.depart = {"slow" : np.zeros(2), "fast" : np.zeros(2)} # Time of departure of every cars
         self.arrival = {"slow" : np.zeros(2), "fast" : np.zeros(2)} # Time of arrival of every cars
         self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
-
+        self.imbalance=[]
 
     def update_battery_stock(self,time,load_battery):
         self.nb_cars(time) # We check what cars is here
@@ -71,7 +71,7 @@ class ChargingStation:
                 self.battery_stock[speed][time+1][i]=new_stock[speed][i]
             # Update of batteries stocks
                 if time == self.arrival[speed][i]-1:
-                    self.battery_stock[speed][time+1][i] = self.battery_stock[speed][self.depart[speed][i]][i]-4
+                    self.battery_stock[speed][time+1][i] = self.battery_stock[speed][int(self.depart[speed][i])][i]-4
                     # When the cars comes back it has lost 4 kWh in the battery
                 self.load_battery_periode[speed][time][i] = load_battery[speed][i]
 
@@ -100,7 +100,7 @@ class ChargingStation:
         # Acctualise how many cars and which are at the station at t = time.
 
 
-    def penality(self,time):
+    def penalty(self,time):
         for speed in ["slow","fast"] :
             for i in range(2):
                 if time == self.depart[speed][i] and self.battery_stock[speed][time][i]/40 < 25:
@@ -109,18 +109,33 @@ class ChargingStation:
 
 
     def take_decision(self, time):
-        load_battery = {"fast" : np.ones(2),"slow" : np.ones(2)}
+        load_battery = {"fast" : 5*np.ones(2),"slow" : 5*np.ones(2)}
         # TO BE COMPLETED
         # Have to return load_battery to put in update_batterie_stock to get the load.
         # load_battery must be in the following format : {"fast" : [load_car_fast_1,load_car_fast_2],"slow" : [load_car_slow_1,load_car_slow_2]}
         return load_battery
 
 
-    def observe(self, time, data, price):
-        self.depart = {"slow" : np.array([15,15]), "fast" : np.array([15,15])} # Time of departure of every cars
-        self.arrival = {"slow" : np.array([35,35]), "fast" : np.array([35,35])} # Time of arrival of every cars
-        # Save observations for decision making
-        pass
+    def observe(self, time, data, price, imbalance):
+        
+        self.depart["slow"][0]=data["departures"][0]
+        self.depart["slow"][1]=data["departures"][1]
+        self.depart["fast"][0]=data["departures"][2]
+        self.depart["fast"][1]=data["departures"][3]
+        
+        self.arrival["slow"][0]=data["arrivals"][0]
+        self.arrival["slow"][1]=data["arrivals"][1]
+        self.arrival["fast"][0]=data["arrivals"][2]
+        self.arrival["fast"][1]=data["arrivals"][3]
+        
+        if time>0:
+            self.prices["internal"].append(price["internal"])
+            self.prices["external_sale"].append(price["external_sale"])
+            self.prices["external_purchase"].append(price["external_purchase"])
+            
+            self.imbalance.append(imbalance)
+        
+        
     def reset(self):
         self.bill = np.zeros(self.nb_t)
         self.load = np.zeros(self.nb_t)
@@ -129,10 +144,12 @@ class ChargingStation:
         self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
         self.depart = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
         self.arrival = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
+        self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
 
     def compute_load(self,time):
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice
         load = self.update_battery_stock(time, load_battery)
         for i in range(2):
             self.load[time] += load["slow"][i] + load["fast"][i]
+        self.penalty(time)
         return self.load[time]

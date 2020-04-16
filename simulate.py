@@ -1,19 +1,19 @@
-import numpy 
+import numpy as np
 import random
 
 
 # import the different players
 
-from players.solarfarm import SolarFarm
-from players.IC import IndustrialConsumer
+from players.solar_farm import SolarFarm
+from players.industrial_consumer2 import IndustrialConsumer
 from players.charging_station import ChargingStation
 
 ## Data
-prices=numpy.loadtxt("prices_class_1.csv") #internal prices, external purchase prices, external sale prices
+prices=np.loadtxt("prices_class_1.csv") #internal prices, external purchase prices, external sale prices
 
-pv_scenarios=numpy.loadtxt("pv.csv") #photovoltaic production per slot, 100 scenarios
-ldem_scenarios=numpy.loadtxt("load.csv")  #industrial needs per slot, 100 scenarios
-planning_scenarios=numpy.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car, 100 scenarios
+pv_scenarios=np.loadtxt("pv.csv") #photovoltaic production per slot, 100 scenarios
+ldem_scenarios=np.loadtxt("load.csv")  #industrial needs per slot, 100 scenarios
+planning_scenarios=np.genfromtxt("t_dep_arr.csv",delimiter= ";") #departure and arrival time of each car, 100 scenarios
 
 
 
@@ -27,7 +27,7 @@ class Manager():
 
         self.players = {"charging_station": ChargingStation(), 
             "solar_farm": SolarFarm(),
-            "industrial_site": IndustrialConsumer(0,0)}  #To be modified
+            "industrial_site": IndustrialConsumer()}  #To be modified
             
         self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
         self.imbalance=[]
@@ -75,15 +75,15 @@ class Manager():
 
                 if load>0: #if the player needs energy
 
-                    cost= (internal_price*(proportion_internal_demand) + external_purchasing_price*(1-proportion_internal_demand))*load*dt
+                    cost= (internal_price*(proportion_internal_demand) + external_purchasing_price*(1-proportion_internal_demand))*load*self.dt
                             #the players pays in proportion on and off the grid for his demand
                     player.bill[time] += cost
 
                 elif load<0: #if the player supply energy
 
-                    revenue=internal_price*load*dt #there is enough demand of engery on the grid
+                    revenue=internal_price*load*self.dt #there is enough demand of engery on the grid
                     player.bill[time] += revenue
-                    player.information["proportion_internal_supply"][time]=1
+        
 
         else :   #if the offer is too consequent on the grid
             
@@ -97,12 +97,12 @@ class Manager():
 
                 if load>0: #if the player needs energy
 
-                    cost=internal_price*load*dt  #there is enough energy produced on the grid
+                    cost=internal_price*load*self.dt  #there is enough energy produced on the grid
                     player.bill[time] += cost
 
                 elif load<0:  #if the player supply energy
 
-                    revenue= (internal_price*(proportion_internal_supply) + external_selling_price*(1-proportion_internal_supply))*load*dt
+                    revenue= (internal_price*(proportion_internal_supply) + external_selling_price*(1-proportion_internal_supply))*load*self.dt
                             #the players pays in proportion of his supply
                     player.bill[time] += revenue
     
@@ -113,25 +113,18 @@ class Manager():
         pv=pv_scenarios[random.randint(0,len(pv_scenarios)-1)] #sunshine data
         ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios))] #industrial consumer need 
         p=random.randint(0,len(planning_scenarios[0])/2 -1) 
-        planning=numpy.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
+        planning=np.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
         
         return pv,ldem,planning
 
 
 ## Transmit data to the player
 
-    def give_info(t,pv,ldem,planning):
-        data_scenario = 
-        { "sun_at_t" : pv[t],
-        "demand_at_t" : ldem[t],
-        "departures_at_t" : planning[0],
-        "arrivals_at_t" : planning[1]}
+    def give_info(self,t,pv,ldem,planning):
+        data_scenario = { "sun" : pv[t],"demand" : ldem[t],"departures" : planning[0], "arrivals" : planning[1]}
         
         if t>0:
-            prices = 
-            {"internal_price" : self.prices["internal"][t-1],
-            "external_sale_price" : self.prices["external_sale"][t-1],
-            "external_purchase_price" : self.prices["external_purchase"][t-1]}
+            prices = {"internal" : self.prices["internal"][t-1],"external_sale" : self.prices["external_sale"][t-1],"external_purchase" : self.prices["external_purchase"][t-1]}
             
             
             
@@ -150,11 +143,26 @@ class Manager():
         
         pv,ldem,planning=self.draw_random_scenario()
         
-        for name, player in self.players.items():
-            player.prices=self.prices
             
         for t in range(self.horizon): # main loop
             
-            give_info(t,pv,ldem)
-            load, demand, supply = self.energy_balance(t)
-            self.compute_bills(t, load, demand, supply)
+            self.give_info(t,pv,ldem,planning)
+            demand, supply = self.energy_balance(t)
+            self.compute_bills(t, demand, supply)
+        print("LOAD")
+        for name, player in self.players.items():
+            print(name)
+            print(player.load)
+        print("Battery")  
+        for name, player in self.players.items():
+            print(name)
+            print(player.battery_stock)    
+        print("BILL")  
+        for name, player in self.players.items():
+            print(name)
+            print(player.bill) 
+            print(sum(player.bill)) 
+
+
+
+
