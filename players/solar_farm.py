@@ -60,7 +60,7 @@ class SolarFarm:
             self.imbalance.append(imbalance)
         
     
-    def reset(self,t):
+    def reset(self):
         self.load= np.zeros(48)
         self.bill = np.zeros(48)
         self.battery_stock = np.zeros(49)
