@@ -142,10 +142,13 @@ class ChargingStation:
         self.load = np.zeros(self.nb_t)
         self.load_battery_periode = {"fast" : np.zeros((self.nb_t,2)),"slow" : np.zeros((self.nb_t,2))}
         self.battery_stock = {"slow" : np.zeros((self.nb_t+1,2)), "fast" : np.zeros((self.nb_t+1,2))}
+        self.nb_slow = 2 
+        self.nb_fast = 2
         self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
         self.depart = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
         self.arrival = {"slow" : np.zeros(2), "fast" : np.zeros(2)}
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
+        self.imbalance=[]
 
     def compute_load(self,time):
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice
