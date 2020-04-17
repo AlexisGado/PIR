@@ -100,7 +100,7 @@ class ChargingStation:
         # Acctualise how many cars and which are at the station at t = time.
 
 
-    def penalty(self,time):
+    def penality(self,time):
         for speed in ["slow","fast"] :
             for i in range(2):
                 if time == self.depart[speed][i] and self.battery_stock[speed][time][i]/40 < 25:
@@ -117,25 +117,25 @@ class ChargingStation:
 
 
     def observe(self, time, data, price, imbalance):
-        
+
         self.depart["slow"][0]=data["departures"][0]
         self.depart["slow"][1]=data["departures"][1]
         self.depart["fast"][0]=data["departures"][2]
         self.depart["fast"][1]=data["departures"][3]
-        
+
         self.arrival["slow"][0]=data["arrivals"][0]
         self.arrival["slow"][1]=data["arrivals"][1]
         self.arrival["fast"][0]=data["arrivals"][2]
         self.arrival["fast"][1]=data["arrivals"][3]
-        
+
         if time>0:
             self.prices["internal"].append(price["internal"])
             self.prices["external_sale"].append(price["external_sale"])
             self.prices["external_purchase"].append(price["external_purchase"])
-            
+
             self.imbalance.append(imbalance)
-        
-        
+
+
     def reset(self):
         self.bill = np.zeros(self.nb_t)
         self.load = np.zeros(self.nb_t)
@@ -151,5 +151,5 @@ class ChargingStation:
         load = self.update_battery_stock(time, load_battery)
         for i in range(2):
             self.load[time] += load["slow"][i] + load["fast"][i]
-        self.penalty(time)
+        self.penality(time)
         return self.load[time]
