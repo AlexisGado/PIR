@@ -111,7 +111,7 @@ class Manager():
     def draw_random_scenario(self):
         
         pv=pv_scenarios[random.randint(0,len(pv_scenarios)-1)] #sunshine data
-        ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios))] #industrial consumer need 
+        ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios)-1)] #industrial consumer need 
         p=random.randint(0,len(planning_scenarios[0])/2 -1) 
         planning=np.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
         
