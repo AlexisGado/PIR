@@ -27,10 +27,11 @@ class Manager():
 
         self.players = {"charging_station": ChargingStation(), 
             "solar_farm": SolarFarm(),
-            "industrial_site": IndustrialConsumer()}  #To be modified
+            "industrial_consumer": IndustrialConsumer()}  #To be modified
             
         self.prices = {"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
         self.imbalance=[]
+        self.scenario={"planning":np.zeros((2,4)),"sunshine":np.zeros(self.horizon),"industrial demand":np.zeros(self.horizon)}
     
     
 
@@ -114,6 +115,9 @@ class Manager():
         ldem=ldem_scenarios[random.randint(0,len(ldem_scenarios)-1)] #industrial consumer need 
         p=random.randint(0,len(planning_scenarios[0])/2 -1) 
         planning=np.array([planning_scenarios[:,2*p], planning_scenarios[:,2*p+1]]) #departure and arrival of each car
+        self.scenario["planning"]=planning
+        self.scenario["sunshine"]=pv
+        self.scenario["industrial demand"]=ldem
         
         return pv,ldem,planning
 
@@ -149,20 +153,57 @@ class Manager():
             self.give_info(t,pv,ldem,planning)
             demand, supply = self.energy_balance(t)
             self.compute_bills(t, demand, supply)
-        print("LOAD")
-        for name, player in self.players.items():
-            print(name)
-            print(player.load)
-        print("Battery")  
-        for name, player in self.players.items():
-            print(name)
-            print(player.battery_stock)    
-        print("BILL")  
-        for name, player in self.players.items():
-            print(name)
-            print(player.bill) 
-            print(sum(player.bill)) 
 
-
+    
+    def reset(self):
+        
+        self.imbalance=[]
+        self.scenario={"planning":np.zeros((2,4)),"sunshine":np.zeros(self.horizon),"industrial demand":np.zeros(self.horizon)}
+        
+        for name, player in self.players.items():
+            player.reset() 
+    
+    
+    
+    def simulate(self,nb_simulation):
+        
+        keys={"charging_station":0,"solar_farm":1,"industrial_consumer":2}
+        
+        tab_load=np.zeros((3,nb_simulation,self.horizon))
+        tab_bill=np.zeros((3,nb_simulation,self.horizon))
+        
+        tab_price={"internal" : np.zeros((nb_simulation,self.horizon)), "external_purchase" : np.zeros((nb_simulation,self.horizon)), "external_sale" : np.zeros((nb_simulation,self.horizon))}
+        
+        tab_battery_stock={"charging_station":np.array([{}]*nb_simulation),"industrial_consumer":np.zeros((nb_simulation,self.horizon+1)),"solar_farm":np.zeros((nb_simulation,self.horizon+1))}
+        tab_scenario=np.array([{}]*nb_simulation)
+        
+        for i in range(nb_simulation):
+                    
+            self.play()
+            
+            tab_scenario[i]=self.scenario
+            
+            for name, player in self.players.items():
+                j = keys[name]
+                tab_load[j, i, :] = player.load
+                tab_bill[j, i, :] = player.bill
+                tab_battery_stock[name][i]=player.battery_stock
+                
+                for type in ["internal","external_purchase","external_sale"]:
+                    tab_price[type][i]=self.prices[type]
+                    
+            
+            self.reset()
+            
+        np.save("load simulation",tab_load)
+        np.save("bill simulation",tab_bill)
+        np.save("price simulation",tab_price)
+        np.save("battery stock simulation",tab_battery_stock)
+        np.save("scenario simulation",tab_scenario)
+        
+        
+                
+    
+    
 
 
