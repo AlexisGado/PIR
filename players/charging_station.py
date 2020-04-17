@@ -63,6 +63,12 @@ class ChargingStation:
 
         for speed in ["slow","fast"] :
             for i in range(2):
+                if abs(load_battery[speed][i]) >= p_max[speed][i]:
+                    load_battery[speed][i] = p_max[speed][i]*np.sign(load_battery[speed][i])
+            # Can't put more power than p_max
+
+        for speed in ["slow","fast"] :
+            for i in range(2):
                 self.battery_stock[speed][time+1][i]=new_stock[speed][i]
             # Update of batteries stocks
                 if time == self.arrival[speed][i]-1:
