@@ -1,2 +1,1 @@
-# PIR
-projet recherche micro grid
+# microgrid-manager

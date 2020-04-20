@@ -2,16 +2,16 @@ import numpy as np
 import os
 from numpy.random import randint
 
-class IndustrialConsumer:
+class Player:
     def __init__(self):
         self.dt = 0.5
         self.efficiency=0.95
-        self.demand=[]
+        self.sun=[]
         self.bill = np.zeros(48) # prix de vente de l'électricité
         self.load= np.zeros(48) # chargement de la batterie (li)
         self.battery_stock = np.zeros(49) #a(t)
         self.capacity = 100
-        self.max_load = 50
+        self.max_load = 70
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
 
@@ -37,18 +37,21 @@ class IndustrialConsumer:
             return load
     
     def take_decision(self, time):
-            # implement your policy here
-            return 0
+            # implement your policy here, return the load wanted in the battery
+            if time<12:
+                return 5
+            else:
+                return -1
         
     def compute_load(self,time):
         load_player = self.take_decision(time)
         load_battery=self.update_battery_stock(time,load_player)
-        self.load[time]=load_battery +self.demand[time]
+        self.load[time]=load_battery -self.sun[time]
         
         return self.load[time]
     
     def observe(self, t, data, price, imbalance):
-        self.demand.append(data["demand"])
+        self.sun.append(data["sun"])
         if (t > 0):
             self.prices["internal"].append(price["internal"])
             self.prices["external_sale"].append(price["external_sale"])
@@ -61,7 +64,11 @@ class IndustrialConsumer:
         self.load= np.zeros(48)
         self.bill = np.zeros(48)
         self.battery_stock = np.zeros(49)
-        self.demand=[]
+        self.sun=[]
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
     
+   
+    
+
+        
