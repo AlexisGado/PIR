@@ -5,18 +5,67 @@
         "folder": "industrial_consumer_1",
         "type": "industrial_consumer"
     },
+
     "1":
+    {
+        "url": "",
+        "folder": "industrial_consumer_2",
+        "type": "industrial_consumer"
+    },
+    "2":
+    {
+        "url": "",
+        "folder": "industrial_consumer_3",
+        "type": "industrial_consumer"
+    },
+    "3":
     {
         "url": "",
         "folder": "solar_farm_1",
         "type": "solar_farm"
     },
-    "2":
+    "4":
+    {
+        "url": "",
+        "folder": "solar_farm_2",
+        "type": "solar_farm"
+    },
+    "5":
+    {
+        "url": "",
+        "folder": "solar_farm_1",
+        "type": "solar_farm"
+    },
+    "6":
     {
         "url": "",
         "folder": "charging_station_1",
         "type": "charging_station"
+    },
+    "7":
+    {
+        "url": "",
+        "folder": "charging_station_2",
+        "type": "charging_station"
+    },
+    "8":
+    {
+        "url": "",
+        "folder": "charging_station_3",
+        "type": "charging_station"
+    },
+    "9":
+    {
+        "url": "",
+        "folder": "charging_station_4",
+        "type": "charging_station"
     }
+
+
+
+
+
+
 
 
 }
