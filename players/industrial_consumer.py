@@ -34,9 +34,9 @@ class IndustrialConsumer :
     def set_battery_load(self,t,battery_load):
 
         #If the battery isn't full enough to provide such amount of electricity, the latter is set to the maximum amount the battery can provide.
-        if ((battery_load/self.efficiency) > self.battery[t-1]):
+        if ((battery_load*self.dt/self.efficiency) > self.battery[t-1]):
             print("Battery_shortage, battery load set to ",self.efficiency*self.battery[t-1])
-            battery_load = self.efficiency*self.battery[t-1]
+            battery_load = self.efficiency*self.battery[t-1]/self.dt
 
         #If the battery isn't enough powerful, the battery load is set to the battery maximum power.
         if (battery_load > self.battery_max_power):
@@ -45,7 +45,7 @@ class IndustrialConsumer :
 
         #If all rules are respected, the amount of electricity from the battery used to meet the demand and the battery level are updated.
         self.battery_load[t] = -battery_load
-        self.battery[t] = self.battery[t-1] - battery_load
+        self.battery[t] = self.battery[t-1] - battery_load*self.dt
         
         return battery_load
         
@@ -55,9 +55,9 @@ class IndustrialConsumer :
     def buy_electricity(self,t,Quantity):
 
         #If the player doesn't buy enough electricity to meet the demand, just enough electricity to do so is purchased.
-        if ((Quantity - self.battery_load[t]) < self.demand[t]):
+        if ((Quantity - self.battery_load[t]*self.dt) < self.demand[t]):
             print("You don't meet the demand, quantity set so that you do : Q = ",self.demand[t] + self.battery_load[t])
-            Quantity = self.demand[t] + self.battery_load[t]
+            Quantity = self.demand[t] + self.battery_load[t]*self.dt
 
         #If the amount of electricity purchased outgrows the maximum battery capacity, enough electricity to fill up the battery is purchased.
         if ((Quantity - self.demand[t])*self.efficiency + self.battery[t] > self.battery_capacity):

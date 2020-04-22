@@ -15,17 +15,21 @@ class IndustrialConsumer:
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
 
-    def update_battery_stock(self, time,load):
+    def update_battery_stock(self,time,load):
+        
+#If the battery isn't enough powerful, the battery load is set to the battery maximum power.
+
             if abs(load) > self.max_load:
-                load = self.max_load*np.sign(load) #saturation au maximum de la batterie
-            
+                load = self.max_load*np.sign(load) 
             new_stock = self.battery_stock[time] + (self.efficiency*max(0,load) - 1/self.efficiency * max(0,-load))*self.dt
             
-            #On rétablit les conditions si le joueur ne les respecte pas :
+#If the battery isn't full enough to provide such amount of electricity, the latter is set to the maximum amount the battery can provide, the load is adjusted.
             
-            if new_stock < 0: #impossible, le min est 0, on calcule le load correspondant
+            if new_stock < 0: 
                 load = - self.battery_stock[time] / (self.efficiency*self.dt)
                 new_stock = 0
+    
+ #If the amount of electricity purchased outgrows the maximum battery capacity, enough electricity to fill up the battery is purchased, the load is adjusted.   
     
             elif new_stock > self.capacity:
                 load = (self.capacity - self.battery_stock[time]) / (self.efficiency*self.dt)
@@ -36,14 +40,14 @@ class IndustrialConsumer:
             
             return load
     
-    def take_decision(self, time):
+    def take_decision(self,time):
             # implement your policy here
             return 0
         
     def compute_load(self,time):
         load_player = self.take_decision(time)
         load_battery=self.update_battery_stock(time,load_player)
-        self.load[time]=load_battery +self.demand[time]
+        self.load[time]=load_battery #+self.demand[time]
         
         return self.load[time]
     
