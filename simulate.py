@@ -94,8 +94,8 @@ class Manager():
         for idx,dico in self.players.items():
             
             player = dico["class"]
-
-            player.compute_load(time)
+            data_scenario = { "sun" : self.scenario["sunshine"][time],"demand" : self.scenario["industrial demand"][time]}
+            player.compute_load(time,data_scenario)
             load = player.load[time]
 
             if load >= 0: #if the player needs energy
@@ -174,22 +174,22 @@ class Manager():
 
 ## Transmit data to the player
 
-    def give_info(self,t,pv,ldem,planning):
+    def give_info(self,t):
         
         departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
         arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
         
         for i in range(4):
-            if t==planning[0,i]:
+            if t==self.scenario["planning"][0,i]:
                 departure[i]=1
-            if t==planning[1,i]:
+            if t==self.scenario["planning"][1,i]:
                 arrival[i]=1
             
         
-        data_scenario = { "sun" : pv[t],"demand" : ldem[t],"departures" : departure, "arrivals" : arrival}
+        data_scenario = { "sun" : self.scenario["sunshine"][t],"demand" : self.scenario["industrial demand"][t],"departures" : departure, "arrivals" : arrival}
         
-        if t>0: #the manager informs the price of the last slot
-            prices = {"internal" : self.prices["internal"][t-1],"external_sale" : self.prices["external_sale"][t-1],"external_purchase" : self.prices["external_purchase"][t-1]}
+    #the manager informs the price of the last slot
+        prices = {"internal" : self.prices["internal"][t],"external_sale" : self.prices["external_sale"][t],"external_purchase" : self.prices["external_purchase"][t]}
             
             
             
@@ -197,10 +197,9 @@ class Manager():
             
             player = dico["class"]
             
-            if t>0:
-                player.observe(t,data_scenario,prices,{"proportion_internal_demand": self.imbalance[0][t-1],"proportion_internal_supply":self.imbalance[1][t-1]})
-            else:
-                player.observe(t,data_scenario,{},{})
+           
+        player.observe(t,data_scenario,prices,{"proportion_internal_demand": self.imbalance[0][t],"proportion_internal_supply":self.imbalance[1][t]})
+           
 
 
 
@@ -213,10 +212,10 @@ class Manager():
             
         for t in range(self.horizon): # main loop
             
-            self.give_info(t,pv,ldem,planning)
+            
             demand, supply = self.energy_balance(t)
             self.compute_bills(t, demand, supply)
-
+            self.give_info(t)
     
     def reset(self):
         #reset the attributes of the manager
@@ -291,10 +290,10 @@ class Manager():
         np.save("data_visualize/imbalance simulation",tab_imbalance)
         np.save("data_visualize/load simulation",tab_load)
         np.save("data_visualize/bill simulation",tab_bill)
-        np.save("data_visualize/price simulation",tab_price)
+        np.save("data_visualize/price simulation",np.array([tab_price]))
         np.save("data_visualize/battery stock simulation IC SF",tab_battery_stock_IC_SF)
         np.save("data_visualize/battery stock simulation CS",tab_battery_stock_CS)
-        np.save("data_visualize/scenario simulation",tab_scenario)
+        np.save("data_visualize/scenario simulation",np.array([tab_scenario]))
         np.save("data_visualize/grid load simulation",tab_grid_load)
         
 

@@ -40,10 +40,10 @@ class Player:
             # implement your policy here
             return 0
         
-    def compute_load(self,time):
+    def compute_load(self,time,data_scenario):
         load_player = self.take_decision(time)
         load_battery=self.update_battery_stock(time,load_player)
-        self.load[time]=load_battery +self.demand[time]
+        self.load[time]=load_battery + data_scenario["demand"]
         
         return self.load[time]
     

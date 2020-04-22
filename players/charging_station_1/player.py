@@ -161,7 +161,7 @@ class Player:
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
 
-    def compute_load(self,time):
+    def compute_load(self,time,data_scenario):
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice
         load = self.update_battery_stock(time, load_battery)
         for i in range(2):
