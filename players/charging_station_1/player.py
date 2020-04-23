@@ -125,8 +125,8 @@ class Player:
         # Have to return load_battery to put in update_batterie_stock to get the load.
         # load_battery must be in the following format : {"fast" : [load_car_fast_1,load_car_fast_2],"slow" : [load_car_slow_1,load_car_slow_2]}
         return load_battery
-        
-        
+
+
     def compute_load(self,time,data_useless):
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice
         load = self.update_battery_stock(time, load_battery)
@@ -143,7 +143,7 @@ class Player:
                 self.depart["slow"][i]=time
             if data["departures"][i]==1 and i>1:
                 self.depart["fast"][i-2]=time
-            
+
             if data["arrivals"][i]==1 and i<2:
                 self.arrival["slow"][i]=time
             if data["arrivals"][i]==1 and i>1:
@@ -164,7 +164,7 @@ class Player:
         self.nb_slow = 2
         self.nb_fast = 2
         self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
-        self.depart = {"slow" : np.array([self.horizon-1,self.horizon-1]), "fast" : np.array([self.horizon-1,self.horizon-1])} 
+        self.depart = {"slow" : np.array([self.horizon-1,self.horizon-1]), "fast" : np.array([self.horizon-1,self.horizon-1])}
         self.arrival = {"slow" : np.array([self.horizon-1,self.horizon-1]), "fast" : np.array([self.horizon-1,self.horizon-1])}
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
