@@ -46,23 +46,19 @@ class Player:
         
     def compute_load(self,time,data_scenario):
         load_player = self.take_decision(time)
-        load_battery=self.update_battery_stock(time,load_player)
-<<<<<<< HEAD:players/industrial_consumer2.py
-        self.load[time]=load_battery #+self.demand[time]
-=======
+        load_battery=self.update_battery_stock(time,load_player)        
         self.load[time]=load_battery + data_scenario["demand"]
->>>>>>> 1b1380734019e54c72eb8d552e871289e01857e4:players/industrial_consumer_1/player.py
         
         return self.load[time]
     
     def observe(self, t, data, price, imbalance):
         self.demand.append(data["demand"])
-        if (t > 0):
-            self.prices["internal"].append(price["internal"])
-            self.prices["external_sale"].append(price["external_sale"])
-            self.prices["external_purchase"].append(price["external_purchase"])
-            
-            self.imbalance.append(imbalance)
+        
+        self.prices["internal"].append(price["internal"])
+        self.prices["external_sale"].append(price["external_sale"])
+        self.prices["external_purchase"].append(price["external_purchase"])
+        
+        self.imbalance.append(imbalance)
         
     
     def reset(self):

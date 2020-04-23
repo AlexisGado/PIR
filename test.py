@@ -19,3 +19,4 @@ scenarios=np.load("data_visualize/scenario simulation.npy")
 
 #batteries 
 batteries2=np.load("data_visualize/battery stock simulation CS.npy")
+

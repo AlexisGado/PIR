@@ -140,12 +140,11 @@ class Player:
             if data["arrivals"][i]==1 and i>1:
                 self.arrival["fast"][i-2]=time
 
-        if time>0:
-            self.prices["internal"].append(price["internal"])
-            self.prices["external_sale"].append(price["external_sale"])
-            self.prices["external_purchase"].append(price["external_purchase"])
+        self.prices["internal"].append(price["internal"])
+        self.prices["external_sale"].append(price["external_sale"])
+        self.prices["external_purchase"].append(price["external_purchase"])
 
-            self.imbalance.append(imbalance)
+        self.imbalance.append(imbalance)
 
 
     def reset(self):

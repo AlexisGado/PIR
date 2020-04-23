@@ -209,7 +209,7 @@ class Manager():
         
         pv,ldem,planning=self.draw_random_scenario()
         
-            
+        
         for t in range(self.horizon): # main loop
             
             

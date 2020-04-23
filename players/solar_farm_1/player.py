@@ -52,12 +52,12 @@ class Player:
     
     def observe(self, t, data, price, imbalance):
         self.sun.append(data["sun"])
-        if (t > 0):
-            self.prices["internal"].append(price["internal"])
-            self.prices["external_sale"].append(price["external_sale"])
-            self.prices["external_purchase"].append(price["external_purchase"])
-            
-            self.imbalance.append(imbalance)
+        
+        self.prices["internal"].append(price["internal"])
+        self.prices["external_sale"].append(price["external_sale"])
+        self.prices["external_purchase"].append(price["external_purchase"])
+        
+        self.imbalance.append(imbalance)
         
     
     def reset(self):
