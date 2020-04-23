@@ -125,6 +125,15 @@ class Player:
         # Have to return load_battery to put in update_batterie_stock to get the load.
         # load_battery must be in the following format : {"fast" : [load_car_fast_1,load_car_fast_2],"slow" : [load_car_slow_1,load_car_slow_2]}
         return load_battery
+        
+        
+    def compute_load(self,time,data_useless):
+        load_battery = self.take_decision(time) # How you charge or discharge is the players choice
+        load = self.update_battery_stock(time, load_battery)
+        for i in range(2):
+            self.load[time] += load["slow"][i] + load["fast"][i]
+        self.penalty(time)
+        return self.load[time]
 
 
     def observe(self, time, data, price, imbalance):
@@ -160,10 +169,4 @@ class Player:
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]
 
-    def compute_load(self,time,data_scenario):
-        load_battery = self.take_decision(time) # How you charge or discharge is the players choice
-        load = self.update_battery_stock(time, load_battery)
-        for i in range(2):
-            self.load[time] += load["slow"][i] + load["fast"][i]
-        self.penalty(time)
-        return self.load[time]
+

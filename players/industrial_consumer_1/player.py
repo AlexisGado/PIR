@@ -44,15 +44,15 @@ class Player:
             # implement your policy here
             return 0
         
-    def compute_load(self,time,data_scenario):
+    def compute_load(self,time,demand):
         load_player = self.take_decision(time)
         load_battery=self.update_battery_stock(time,load_player)        
-        self.load[time]=load_battery + data_scenario["demand"]
+        self.load[time]=load_battery + demand
         
         return self.load[time]
     
-    def observe(self, t, data, price, imbalance):
-        self.demand.append(data["demand"])
+    def observe(self, t, demand, price, imbalance):
+        self.demand.append(demand)
         
         self.prices["internal"].append(price["internal"])
         self.prices["external_sale"].append(price["external_sale"])

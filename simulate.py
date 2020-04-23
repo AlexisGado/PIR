@@ -8,7 +8,7 @@ import random
 
 class Manager():
     
-    def __init__(self, path_to_player_file,path_to_price_file,path_to_sun_file,path_to_industrial_demand_file,path_to_planning_file): #constructor
+    def __init__(self, path_to_player_file,path_to_price_file): #constructor
         
         self.horizon = 48
         self.dt = 0.5
@@ -19,13 +19,14 @@ class Manager():
         self.players = self.initialize_players(path_to_player_file)
         
         self.prices = self.initialize_prices(path_to_price_file)
-        self.data_scenario=self.initialize_data_scenario(path_to_sun_file,path_to_industrial_demand_file,path_to_planning_file)
+        self.data_scenario=self.initialize_data_scenario()
         
         self.imbalance=np.zeros((2,self.horizon))
         self.grid_load={"demand": np.zeros(self.horizon), "supply": np.zeros(self.horizon) }
-        self.scenario={"planning":np.zeros((2,4)),"sunshine":np.zeros(self.horizon),"industrial demand":np.zeros(self.horizon)}
         
-        
+        self.scenario={}
+
+
 
     def initialize_players(self, json_file):
 
@@ -45,9 +46,8 @@ class Manager():
             Player = getattr(mod, "Player")
             new_player = Player() # if you want to initialize with parameters, you have to distinguish types of players... do we want that ?
             
-            new_players[idx] = {"class":new_player, "type":players[idx]["type"]}
+            new_players[idx] = {"class":new_player, "type":players[idx]["type"],"name":players[idx]["folder"] }
             
-
         return new_players
         
 ## Initialize the prices for the day
@@ -61,42 +61,61 @@ class Manager():
 
 ## Initialize all the scenarios possible
 
-    def initialize_data_scenario(self,path_to_sun_file,path_to_industrial_demand_file,path_to_planning_file):
+    def initialize_data_scenario(self):
         
-        pv_scenarios=np.loadtxt(path_to_sun_file) #photovoltaic production per slot, 100 scenarios
-        ldem_scenarios=np.loadtxt(path_to_industrial_demand_file)  #industrial needs per slot, 100 scenarios
-        planning_scenarios=np.genfromtxt(path_to_planning_file,delimiter= ";") #departure and arrival time of each car, 100 scenarios
-        dico_data_scenario={"planning":planning_scenarios,"sunshine":pv_scenarios,"industrial demand":ldem_scenarios}
+        dico_data_scenario={}
         
+        for idx,dico in self.players.items():
+            
+            if dico["type"] == "charging_station":
+                
+                dico_data_scenario[dico["name"]] = np.genfromtxt("players/"+dico["name"]+"/data.csv",delimiter= ";") #departure and arrival time of each car
+            
+            else:
+                dico_data_scenario[dico["name"]] = np.loadtxt("players/"+dico["name"]+"/data.csv")
+            
         return dico_data_scenario
         
 ## Draw a scenario for the day
     
     def draw_random_scenario(self):
         
+        
+        for idx,dico in self.players.items():
+            
+            if dico["type"] == "charging_station":
+                p=random.randint(0,len(self.data_scenario[dico["name"]])/2 -1) 
+                planning=np.array([self.data_scenario[dico["name"]][:,2*p], self.data_scenario[dico["name"]][:,2*p+1]])
+                
+                self.scenario[dico["name"]] = planning
+                
+            else:
+                self.scenario[dico["name"]] = self.data_scenario[dico["name"]][random.randint(0,len(self.data_scenario[dico["name"]])-1)]
 
-        pv=self.data_scenario["sunshine"][random.randint(0,len(self.data_scenario["sunshine"])-1)] #sunshine data
-        ldem=self.data_scenario["industrial demand"][random.randint(0,len(self.data_scenario["industrial demand"])-1)] #industrial consumer need 
-        p=random.randint(0,len(self.data_scenario["planning"])/2 -1) 
-        planning=np.array([self.data_scenario["planning"][:,2*p], self.data_scenario["planning"][:,2*p+1]]) #departure and arrival of each car
-        scenario={"planning":planning,"sunshine":pv,"industrial demand":ldem}
-        
-        self.scenario=scenario
-        
-        return pv,ldem,planning
-        
+
+
+
            ##Compute the energy balance on a slot
     def energy_balance(self, time):
 
         demand = 0
         supply = 0
+        
 
         for idx,dico in self.players.items():
             
             player = dico["class"]
-            data_scenario = { "sun" : self.scenario["sunshine"][time],"demand" : self.scenario["industrial demand"][time]}
-            player.compute_load(time,data_scenario)
+            
+            if dico["type"] == "charging_station":                
+                data_to_player = 0
+                
+            else:
+                data_to_player = self.scenario[dico["name"]][time]
+            
+            player.compute_load(time,data_to_player)
+            
             load = player.load[time]
+
 
             if load >= 0: #if the player needs energy
                 demand += load
@@ -176,17 +195,6 @@ class Manager():
 
     def give_info(self,t):
         
-        departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
-        arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
-        
-        for i in range(4):
-            if t==self.scenario["planning"][0,i]:
-                departure[i]=1
-            if t==self.scenario["planning"][1,i]:
-                arrival[i]=1
-            
-        
-        data_scenario = { "sun" : self.scenario["sunshine"][t],"demand" : self.scenario["industrial demand"][t],"departures" : departure, "arrivals" : arrival}
         
     #the manager informs the price of the last slot
         prices = {"internal" : self.prices["internal"][t],"external_sale" : self.prices["external_sale"][t],"external_purchase" : self.prices["external_purchase"][t]}
@@ -197,8 +205,25 @@ class Manager():
             
             player = dico["class"]
             
-           
-        player.observe(t,data_scenario,prices,{"proportion_internal_demand": self.imbalance[0][t],"proportion_internal_supply":self.imbalance[1][t]})
+            if dico["type"] == "charging_station":
+                
+                departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
+                arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
+                
+                for i in range(4):
+                    if t==self.scenario[dico["name"]][0,i]:
+                        departure[i]=1
+                    if t==self.scenario[dico["name"]][1,i]:
+                        arrival[i]=1
+                
+                data_to_player = {"departures":departure , "arrivals":arrival}
+                
+                
+            else:
+                
+                data_to_player = self.scenario[dico["name"]][t]
+            
+            player.observe(t,data_to_player,prices,{"proportion_internal_demand": self.imbalance[0][t],"proportion_internal_supply":self.imbalance[1][t]})
            
 
 
@@ -207,7 +232,7 @@ class Manager():
 
     def play(self):
         
-        pv,ldem,planning=self.draw_random_scenario()
+        self.draw_random_scenario()
         
         
         for t in range(self.horizon): # main loop
@@ -220,66 +245,97 @@ class Manager():
     def reset(self):
         #reset the attributes of the manager
         self.imbalance=np.zeros((2,self.horizon))
-        self.scenario={"planning":np.zeros((2,4)),"sunshine":np.zeros(self.horizon),"industrial demand":np.zeros(self.horizon)}
+        self.scenario={}
         
         for idx,dico in self.players.items(): #reset the attributes of thes players
             
             player = dico["class"]
             player.reset() 
     
+
     
     
     def simulate(self,nb_simulation):
         
         
-        tab_load=np.zeros((self.nb_tot_players,nb_simulation,self.horizon))  #player,day,slot
-        tab_bill=np.zeros((self.nb_tot_players,nb_simulation,self.horizon))  #player,day,slot
-        
-        tab_price={"internal" : np.zeros((nb_simulation,self.horizon)), "external_purchase" : np.zeros((nb_simulation,self.horizon)), "external_sale" : np.zeros((nb_simulation,self.horizon))}  #day,slot
+        ##Init tabs infos
         
         
-        tab_battery_stock_IC_SF = np.zeros((self.nb_players["industrial_consumer"]+self.nb_players["industrial_consumer"],nb_simulation,self.horizon+1)) #player,day,slot
         
-        tab_battery_stock_CS = np.zeros((self.nb_players["charging_station"],nb_simulation,4,self.horizon+1)) #player,day,slot
+        tab_scenario_IC_SF = {}
+        tab_scenario_CS = {}
+        tab_load = {}
+        tab_bill = {}
+        tab_battery_stock_IC_SF = {}
+        tab_battery_stock_CS = {}
         
-        tab_scenario= {"planning":np.zeros((nb_simulation,2,4)),"sunshine":np.zeros((nb_simulation,self.horizon)),"industrial demand":np.zeros((nb_simulation,self.horizon))} #day,departure/arrival,voiture #day,slot #day,slot
+        for idx,dico in self.players.items():
+            
+            name = dico["name"]
+            tab_load[name] = np.zeros((nb_simulation,self.horizon))
+            tab_bill[name] = np.zeros((nb_simulation,self.horizon))
+            
+            if dico["type"]=="charging_station":
+                tab_scenario_CS[name] = np.zeros((nb_simulation,2,4))
+                tab_battery_stock_CS[name] = np.zeros((nb_simulation,4,self.horizon+1))
+                
+            else:
+                tab_scenario_IC_SF[name] = np.zeros((nb_simulation,self.horizon))
+                tab_battery_stock_IC_SF[name] = np.zeros((nb_simulation,self.horizon+1))
         
-        tab_grid_load=np.zeros((2,nb_simulation,self.horizon))  #sale/purchase,day,slot
         
-        tab_imbalance = np.zeros((nb_simulation,2,self.horizon)) #day,sale/purchase,slot
+        tab_price={"internal" : np.zeros((nb_simulation,self.horizon)), "external_purchase" : np.zeros((nb_simulation,self.horizon)), "external_sale" : np.zeros((nb_simulation,self.horizon))}
+        
+        
+        tab_grid_load = {"demand" : np.zeros((nb_simulation,self.horizon)) , "supply" : np.zeros((nb_simulation,self.horizon))}
+        
+        
+        tab_imbalance = {"demand" : np.zeros((nb_simulation,self.horizon)) , "supply" : np.zeros((nb_simulation,self.horizon))}
+        
+        
+        
         
         for i in range(nb_simulation):
                     
             self.play()
             
-            tab_grid_load[0,i]=self.grid_load["demand"]
-            tab_grid_load[1,i]=self.grid_load["supply"]
+            tab_grid_load["demand"][i]=self.grid_load["demand"]
+            tab_grid_load["supply"][i]=self.grid_load["supply"]
             
-            for type in ["planning","sunshine","industrial demand"]:
-                tab_scenario[type][i]=self.scenario[type]
+            tab_imbalance["demand"][i] = self.imbalance[0]
+            tab_imbalance["supply"][i] = self.imbalance[1]
+            
+                
             
             for type in ["internal","external_purchase","external_sale"]:
                 tab_price[type][i]=self.prices[type]
-                    
-            tab_imbalance[i] = self.imbalance
+
             
             for idx,dico in self.players.items():
             
                 player = dico["class"]
+                name = dico["name"]
                 
                 
-                tab_load[int(idx), i, :] = player.load
-                tab_bill[int(idx), i, :] = player.bill
+                tab_load[name][i] = player.load
+                tab_bill[name][i] = player.bill
+                
                 
                 if dico["type"]=="charging_station":
                     
-                    new_bat = np.concatenate((player.battery_stock["slow"],player.battery_stock["fast"]),axis=1)
+                    tab_scenario_CS[name][i] = self.scenario[name]
                     
+                    
+                    new_bat = np.concatenate((player.battery_stock["slow"],player.battery_stock["fast"]),axis=1)
                     new_bat = np.transpose(new_bat)
                     
-                    tab_battery_stock_CS[int(idx)-self.nb_players["industrial_consumer"]-self.nb_players["industrial_consumer"],i,:,:] = new_bat
+                    tab_battery_stock_CS[name][i] = new_bat
+                    
                 else:
-                    tab_battery_stock_IC_SF[int(idx),i,:] = player.battery_stock
+                    tab_scenario_IC_SF[name][i] = self.scenario[name]
+                    
+                    
+                    tab_battery_stock_IC_SF[name][i] = player.battery_stock
                     
                 
             
@@ -287,13 +343,13 @@ class Manager():
             self.reset()
             
             
-        np.save("data_visualize/imbalance simulation",tab_imbalance)
-        np.save("data_visualize/load simulation",tab_load)
-        np.save("data_visualize/bill simulation",tab_bill)
-        np.save("data_visualize/price simulation",np.array([tab_price]))
-        np.save("data_visualize/battery stock simulation IC SF",tab_battery_stock_IC_SF)
-        np.save("data_visualize/battery stock simulation CS",tab_battery_stock_CS)
-        np.save("data_visualize/scenario simulation",np.array([tab_scenario]))
-        np.save("data_visualize/grid load simulation",tab_grid_load)
+        np.save("data_visualize/imbalance_simulation",np.array([tab_imbalance]))
+        np.save("data_visualize/load_simulation",np.array([tab_load]))
+        np.save("data_visualize/bill_simulation",np.array([tab_bill]))
+        np.save("data_visualize/price_simulation",np.array([tab_price]))
+        np.save("data_visualize/battery_stock_simulation_IC_SF",np.array([tab_battery_stock_IC_SF]))
+        np.save("data_visualize/battery_stock_simulation_CS",np.array([tab_battery_stock_CS]))
+        np.save("data_visualize/scenario_simulation_IC_SF",np.array([tab_scenario_IC_SF]))
+        np.save("data_visualize/scenario_simulation_CS",np.array([tab_scenario_CS]))
+        np.save("data_visualize/grid_load_simulation",np.array([tab_grid_load]))
         
-
