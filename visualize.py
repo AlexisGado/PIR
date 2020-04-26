@@ -35,7 +35,7 @@ def plot_1(Tab,unite,titre, labl,joueur, path):
         Total+=TabL[t]
         
     ind=np.arange(T)
-    width=0.15
+    width=0.25
 
     p1=plt.bar(ind, TabL, 3*width, color='r', bottom=0,label = labl, yerr=E)
     plt.ylabel(unite)
@@ -73,7 +73,7 @@ def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
         Total+=TabL[t]
         
     ind=np.arange(T)
-    width=0.15
+    width=0.25
 
     p1=plt.bar(ind, TabL, 3*width, color='r', bottom=0,label = labl, yerr=E)
     plt.ylabel(unite)
