@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random as rd
 
- 
+xticks=[0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50] 
     
 def plot_1(Tab,unite,titre, labl,joueur, path):
     """ 
@@ -42,7 +42,10 @@ def plot_1(Tab,unite,titre, labl,joueur, path):
     plt.xlim([0,T+5])
     plt.legend(loc='upper right')
     plt.title(titre+ " "+joueur)
-    plt.grid(True)
+    plt.grid(False)
+    plt.xlabel('time')
+    plt.autoscale(True,axis='y')
+    plt.xticks(ticks=xticks)
     
     plt.savefig(path)
     
@@ -76,8 +79,11 @@ def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
     plt.ylabel(unite)
     plt.xlim([0,T+5])
     plt.legend(loc='upper right')
-    plt.title(titre + " "+joueur +" voiture " + cars)
-    plt.grid(True)
+    plt.title(titre + " "+joueur +" car " + cars)
+    plt.grid(False)
+    plt.xlabel('time')
+    plt.autoscale(True, axis='y')
+    plt.xticks(ticks=xticks)
     
     plt.savefig(path)
     
@@ -115,8 +121,11 @@ def plot_2(Tab,unite,titre,path):
 
     
     ax.set_ylabel(unite)
+    ax.set_xlabel('time')
     ax.set_title(titre)
     ax.legend()
+    ax.autoscale(True,axis='y')
+    ax.set_xticks(ticks=xticks)
 
     fig.tight_layout()
 
@@ -124,7 +133,51 @@ def plot_2(Tab,unite,titre,path):
     
     plt.show()
     
+def plot_3(Tab,unite,titre,path):
     
+        
+    "Pour prices"
+    
+    T=48
+    N=int(Tab['internal'].size/T)
+    internal=np.zeros(T)
+    ext_purch=np.zeros(T)
+    ext_sale=np.zeros(T)
+    Einternal=np.zeros(T)
+    Eext_purch=np.zeros(T)
+    Eext_sale=np.zeros(T)
+    
+    for t in range(T):
+        internal[t]=np.mean(Tab['internal'][:,t])
+        ext_purch[t]=np.mean(Tab['external_purchase'][:,t])
+        ext_sale[t]=np.mean(Tab['external_sale'][:,t])
+        Einternal[t]=np.std(Tab['internal'][:,t])
+        Eext_purch[t]=np.std(Tab['external_purchase'][:,t])
+        Eext_sale[t]=np.std(Tab['external_sale'][:,t])
+        
+        
+    ind=np.arange(T)
+    width=0.5
+
+    fig, ax = plt.subplots()
+    
+    p1=ax.plot(ind,internal, label='internal', color='b')
+    p2=ax.plot(ind,ext_purch, label='ext_purchase',color='g')
+    p3=ax.plot(ind,ext_sale, label='ext_sale',color='r')
+    
+    ax.set_ylabel(unite)
+    ax.set_title(titre)
+    ax.set_xlabel('time')
+    
+    ax.legend(loc='upper left')
+    ax.autoscale(True,axis='y')
+    ax.set_xticks(ticks=xticks)
+
+
+    plt.savefig(path)
+    
+    plt.show()
+  
 
 def plottotal(dico, unite, titre, labl, path_to_data):
     for cle,objet in dico.items():
@@ -138,6 +191,7 @@ def plotCS(dico,unite,titre,labl,path):
         for cars in range (4):
             plot_1bis(dico[cle][:,cars,:],unite,titre,labl,cle,h[cars],path + "_" + cle +"_voiture_"+h[cars]+".png")
         
+
 
 
 ###################################################################################
@@ -185,32 +239,32 @@ prices=np.load("data_visualize/price_simulation.npy",allow_pickle=True)
 
 "affichage chargement"
 
-plottotal(loads[0],'MW','Chargement pour le joueur','Chargement','chargement')
+plottotal(loads[0],'MW','Average loads for player','Loads','chargement')
 
 "affichage facture"
 
-plottotal(bills[0],'€','Facture pour le joueur','Facture','facture')
+plottotal(bills[0],'€','Average bills for player','Bills','facture')
 
 "affichage batterie IC, SF"
 
-plottotal(batteries_IC_SF[0],'MWh','Niveau de la batterie pour le joueur','Niveau','batterie')
+plottotal(batteries_IC_SF[0],'MWh','Average battery level for player','Level','battery')
 
 "affichage batterie CS"
 
-plotCS(batteries_CS[0],'MWh','Niveau batterie du joueur','Niveau', 'batterie')
+plotCS(batteries_CS[0],'MWh','Average battery level for player','Level', 'battery')
 
 "affichage scenario IC_SF"
 
-plottotal(scenarios_IC_SF[0],'MW','Paramètre du joueur','Ensoleillement/Production','parametre')
+plottotal(scenarios_IC_SF[0],'MW','Parameter for player','Sunlight/Production','parametre')
 
 "affichage imbalances"
 
-plot_2(imbalances[0],'%','Balance économique achat/vente','figure_imbalances.png')
+plot_2(imbalances[0],'%','Imbalances','figure_imbalances.png')
 
 "affichage grid_load"
 
-plot_2(grid_load[0],'€','Balance économique achat/vente','figure_grid_load.png')
+plot_2(grid_load[0],'€','Economic balance','figure_grid_load.png')
 
 "affichage prices"
 
-plottotal(prices[0],'€/MWh',"Prix de l'électricité : ",'Prix','figure_prices.png')
+plot_3(prices[0],'€/MWh',"Electricity price ",'figure_prices.png')
