@@ -44,9 +44,13 @@ def plot_1(Tab,unite,titre, labl,joueur, path):
     plt.title(titre+ " "+joueur)
     plt.grid(True)
     
+    plt.savefig(path)
+    
+    
+    
     plt.show()
     
-    plt.savefig(path)
+    
 
 def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
     
@@ -75,9 +79,11 @@ def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
     plt.title(titre + " "+joueur +" et pour la voiture " + cars)
     plt.grid(True)
     
+    plt.savefig(path)
+    
     plt.show()
     
-    plt.savefig(path)
+    
     
  
 
@@ -114,21 +120,23 @@ def plot_2(Tab,unite,titre,path):
 
     fig.tight_layout()
 
+    plt.savefig(path)
+    
     plt.show()
     
-    plt.savefig(path)
+    
 
 def plottotal(dico, unite, titre, labl, path_to_data):
     for cle,objet in dico.items():
-        plot_1(objet,unite,titre,labl,cle,path_to_data)
+        plot_1(objet,unite,titre,labl,cle,path_to_data + "_" + cle + ".png")
 
 
 
-def plotCS(dico,unite,titre,labl,path_to_data):
+def plotCS(dico,unite,titre,labl,path):
     h=['1','2','3','4']
     for cle,objet in dico.items():
         for cars in range (4):
-            plot_1bis(dico[cle][:,cars,:],unite,titre,labl,cle,h[cars],path_to_data)
+            plot_1bis(dico[cle][:,cars,:],unite,titre,labl,cle,h[cars],path + "_" + cle +"_voiture_"+h[cars]+".png")
         
 
 
@@ -177,33 +185,32 @@ prices=np.load("data_visualize/price_simulation.npy",allow_pickle=True)
 
 "affichage chargement"
 
-plottotal(loads[0],'MW','Chargement pour le joueur','Chargement','/Users/corentinguery/Documents/PIR-master/figure')
+plottotal(loads[0],'MW','Chargement pour le joueur','Chargement','chargement')
 
 "affichage facture"
 
-plottotal(bills[0],'€','Facture pour le joueur','Facture','/Users/corentinguery/Documents/PIR-master/figure')
+plottotal(bills[0],'€','Facture pour le joueur','Facture','facture')
 
 "affichage batterie IC, SF"
 
-plottotal(batteries_IC_SF[0],'MWh','Niveau de la batterie pour le joueur','Niveau','/Users/corentinguery/Documents/PIR-master/figure')
+plottotal(batteries_IC_SF[0],'MWh','Niveau de la batterie pour le joueur','Niveau','batterie')
 
 "affichage batterie CS"
 
-plotCS(batteries_CS[0],'MWh','Niveau de la batterie pour le joueur','Niveau', '/Users/corentinguery/Documents/PIR-master/figure')
+plotCS(batteries_CS[0],'MWh','Niveau de la batterie pour le joueur','Niveau', 'batterie')
 
 "affichage scenario IC_SF"
 
-plottotal(scenarios_IC_SF[0],'MW','Paramètre du joueur','Ensoleillement/Production','/Users/corentinguery/Documents/PIR-master/figure')
+plottotal(scenarios_IC_SF[0],'MW','Paramètre du joueur','Ensoleillement/Production','parametre')
 
 "affichage imbalances"
 
-plot_2(imbalances[0],'%','Balance économique achat/vente','/Users/corentinguery/Documents/PIR-master/figure')
+plot_2(imbalances[0],'%','Balance économique achat/vente','figure_imbalances.png')
 
 "affichage grid_load"
 
-plot_2(grid_load[0],'€','Balance économique achat/vente','/Users/corentinguery/Documents/PIR-master/figure')
+plot_2(grid_load[0],'€','Balance économique achat/vente','figure_grid_load.png')
 
 "affichage prices"
 
-plottotal(prices[0],'€/MWh',"Prix de l'électricité : ",'Prix','/Users/corentinguery/Documents/PIR-master/figure')
-
+plottotal(prices[0],'€/MWh',"Prix de l'électricité : ",'Prix','figure_prices.png')
