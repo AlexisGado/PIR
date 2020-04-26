@@ -3,7 +3,7 @@
 import json
 import numpy as np
 import random
-
+import os
 
 
 class Manager():
@@ -271,7 +271,13 @@ class Manager():
 
     
     
-    def simulate(self,nb_simulation):
+    def simulate(self,nb_simulation,simulation_name):
+        
+        ##create a folder
+        
+        os.mkdir(simulation_name)
+        os.mkdir(simulation_name+"/data_visualize")
+        os.mkdir(simulation_name+"/plot")
         
         
         ##Init tabs infos
@@ -359,13 +365,13 @@ class Manager():
             self.reset()
             
             
-        np.save("data_visualize/imbalance_simulation",np.array([tab_imbalance]))
-        np.save("data_visualize/load_simulation",np.array([tab_load]))
-        np.save("data_visualize/bill_simulation",np.array([tab_bill]))
-        np.save("data_visualize/price_simulation",np.array([tab_price]))
-        np.save("data_visualize/battery_stock_simulation_IC_SF",np.array([tab_battery_stock_IC_SF]))
-        np.save("data_visualize/battery_stock_simulation_CS",np.array([tab_battery_stock_CS]))
-        np.save("data_visualize/scenario_simulation_IC_SF",np.array([tab_scenario_IC_SF]))
-        np.save("data_visualize/scenario_simulation_CS",np.array([tab_scenario_CS]))
-        np.save("data_visualize/grid_load_simulation",np.array([tab_grid_load]))
+        np.save(simulation_name+"/data_visualize/imbalance_simulation",np.array([tab_imbalance]))
+        np.save(simulation_name+"/data_visualize/load_simulation",np.array([tab_load]))
+        np.save(simulation_name+"/data_visualize/bill_simulation",np.array([tab_bill]))
+        np.save(simulation_name+"/data_visualize/price_simulation",np.array([tab_price]))
+        np.save(simulation_name+"/data_visualize/battery_stock_simulation_IC_SF",np.array([tab_battery_stock_IC_SF]))
+        np.save(simulation_name+"/data_visualize/battery_stock_simulation_CS",np.array([tab_battery_stock_CS]))
+        np.save(simulation_name+"/data_visualize/scenario_simulation_IC_SF",np.array([tab_scenario_IC_SF]))
+        np.save(simulation_name+"/data_visualize/scenario_simulation_CS",np.array([tab_scenario_CS]))
+        np.save(simulation_name+"/data_visualize/grid_load_simulation",np.array([tab_grid_load]))
         
