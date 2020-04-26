@@ -76,7 +76,7 @@ def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
     plt.ylabel(unite)
     plt.xlim([0,T+5])
     plt.legend(loc='upper right')
-    plt.title(titre + " "+joueur +" et pour la voiture " + cars)
+    plt.title(titre + " "+joueur +" voiture " + cars)
     plt.grid(True)
     
     plt.savefig(path)
@@ -197,7 +197,7 @@ plottotal(batteries_IC_SF[0],'MWh','Niveau de la batterie pour le joueur','Nivea
 
 "affichage batterie CS"
 
-plotCS(batteries_CS[0],'MWh','Niveau de la batterie pour le joueur','Niveau', 'batterie')
+plotCS(batteries_CS[0],'MWh','Niveau batterie du joueur','Niveau', 'batterie')
 
 "affichage scenario IC_SF"
 
