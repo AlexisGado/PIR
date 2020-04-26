@@ -70,7 +70,10 @@ class Manager():
             if dico["type"] == "charging_station":
                 
                 dico_data_scenario[dico["name"]] = np.genfromtxt("players/"+dico["name"]+"/data.csv",delimiter= ";") #departure and arrival time of each car
-            
+                
+            elif dico["type"] == "industrial_consumer":
+                dico_data_scenario[dico["name"]] = np.loadtxt("players/"+dico["name"]+"/data.csv")/2
+                
             else:
                 dico_data_scenario[dico["name"]] = np.loadtxt("players/"+dico["name"]+"/data.csv")
             
@@ -84,10 +87,12 @@ class Manager():
         for idx,dico in self.players.items():
             
             if dico["type"] == "charging_station":
-                p=random.randint(0,len(self.data_scenario[dico["name"]])/2 -1) 
+                # p=random.randint(0,len(self.data_scenario[dico["name"]])/2 -1) 
+                p=random.randint(0,99) 
                 planning=np.array([self.data_scenario[dico["name"]][:,2*p], self.data_scenario[dico["name"]][:,2*p+1]])
                 
                 self.scenario[dico["name"]] = planning
+                #print(planning)
                 
             else:
                 self.scenario[dico["name"]] = self.data_scenario[dico["name"]][random.randint(0,len(self.data_scenario[dico["name"]])-1)]
@@ -106,8 +111,18 @@ class Manager():
             
             player = dico["class"]
             
-            if dico["type"] == "charging_station":                
-                data_to_player = 0
+            if dico["type"] == "charging_station":
+                departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
+                arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
+                
+                for i in range(4):
+                    if time==self.scenario[dico["name"]][0,i]:
+                        departure[i]=1
+                    if time==self.scenario[dico["name"]][1,i]:
+                        arrival[i]=1
+                
+                data_to_player = {"departures":departure , "arrivals":arrival}
+                                
                 
             else:
                 data_to_player = self.scenario[dico["name"]][time]
@@ -166,7 +181,7 @@ class Manager():
         else :   #if the offer is too consequent on the grid
             
             proportion_internal_demand=1
-            proportion_internal_supply=internal_exchange/demand
+            proportion_internal_supply=internal_exchange/supply
             self.imbalance[0][time] = proportion_internal_demand
             self.imbalance[1][time] = proportion_internal_supply
             
@@ -207,16 +222,18 @@ class Manager():
             
             if dico["type"] == "charging_station":
                 
-                departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
-                arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
+                # departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
+                # arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
+                # 
+                # for i in range(4):
+                #     if t==self.scenario[dico["name"]][0,i]:
+                #         departure[i]=1
+                #     if t==self.scenario[dico["name"]][1,i]:
+                #         arrival[i]=1
+                # 
+                # data_to_player = {"departures":departure , "arrivals":arrival}
                 
-                for i in range(4):
-                    if t==self.scenario[dico["name"]][0,i]:
-                        departure[i]=1
-                    if t==self.scenario[dico["name"]][1,i]:
-                        arrival[i]=1
-                
-                data_to_player = {"departures":departure , "arrivals":arrival}
+                data_to_player = 0
                 
                 
             else:
@@ -236,7 +253,6 @@ class Manager():
         
         
         for t in range(self.horizon): # main loop
-            
             
             demand, supply = self.energy_balance(t)
             self.compute_bills(t, demand, supply)

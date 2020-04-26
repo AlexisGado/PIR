@@ -38,10 +38,10 @@ class Player:
     
     def take_decision(self, time):
             # implement your policy here, return the load wanted in the battery
-            if time<12:
-                return 5
+            if time>20 and time<35:
+                return -8
             else:
-                return -1
+                return +5
         
     def compute_load(self,time,sun):
         load_player = self.take_decision(time)
@@ -63,7 +63,11 @@ class Player:
     def reset(self):
         self.load= np.zeros(48)
         self.bill = np.zeros(48)
+        
+        last_bat = self.battery_stock[-1]
         self.battery_stock = np.zeros(49)
+        self.battery_stock[0] = last_bat
+        
         self.sun=[]
         self.prices = {"internal" : [],"external_purchase" : [],"external_sale" : []}
         self.imbalance=[]

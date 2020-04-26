@@ -51,7 +51,8 @@ def plot_1(Tab,unite,titre, labl,joueur, path):
     
     
     
-    plt.show()
+    #plt.show()
+    plt.close()
     
     
 
@@ -87,8 +88,8 @@ def plot_1bis(Tab,unite,titre, labl,joueur,cars, path):
     
     plt.savefig(path)
     
-    plt.show()
-    
+    #plt.show()
+    plt.close()
     
     
  
@@ -131,7 +132,8 @@ def plot_2(Tab,unite,titre,path):
 
     plt.savefig(path)
     
-    plt.show()
+    #plt.show()
+    plt.close()
     
 def plot_3(Tab,unite,titre,path):
     
@@ -176,7 +178,8 @@ def plot_3(Tab,unite,titre,path):
 
     plt.savefig(path)
     
-    plt.show()
+    #plt.show()
+    plt.close()
   
 
 def plottotal(dico, unite, titre, labl, path_to_data):

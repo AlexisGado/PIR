@@ -5,9 +5,8 @@ import time
 t = time.time()
 
 
-
 manager = Manager("data/players.json","data/prices.csv")
-manager.simulate(100)
+manager.simulate(1000)
 
 
 # All npy files are dictionaries (inside a 1 length array)
@@ -34,7 +33,6 @@ scenarios_CS=np.load("data_visualize/scenario_simulation_CS.npy")
 
 
 
-
 ##Données communes
 
 imbalances=np.load("data_visualize/imbalance_simulation.npy")
@@ -49,5 +47,4 @@ prices=np.load("data_visualize/price_simulation.npy")
 
 
 print(time.time()-t)
-
 
