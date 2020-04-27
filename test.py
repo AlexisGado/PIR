@@ -3,13 +3,13 @@ from simulate import Manager
 import time
 import visualize as vis
 
-name='Premiere_simulation'
+name='Premiere_simulation_1000j'
 
 t = time.time()
 
 
 manager = Manager("data/players.json","data/prices.csv")
-manager.simulate(100,name)
+manager.simulate(1000,name)
 
 
 # All npy files are dictionaries (inside a 1 length array)
@@ -57,7 +57,7 @@ print(time.time()-t)
 
 
 
-vis.plottotal(loads[0],'MW','Average loads for player','Loads','chargement',name)
+vis.plottotal(loads[0],'kW','Average loads for player','Loads','chargement',name)
 
 #affichage facture"
 
@@ -65,15 +65,15 @@ vis.plottotal(bills[0],'€','Average bills for player','Bills','facture',name)
 
 #affichage batterie IC, SF"
 
-vis.plottotal(batteries_IC_SF[0],'MWh','Average battery level for player','Level','battery',name)
+vis.plottotal(batteries_IC_SF[0],'kWh','Average battery level for player','Level','battery',name)
 
 #affichage batterie CS"
 
-vis.plotCS(batteries_CS[0],'MWh','Average battery level for player','Level', 'battery',name)
+vis.plotCS(batteries_CS[0],'kWh','Average battery level for player','Level', 'battery',name)
 
 #affichage scenario IC_SF"
 
-vis.plottotal(scenarios_IC_SF[0],'MW','Parameter for player','Sunlight/Production','parametre',name)
+vis.plottotal(scenarios_IC_SF[0],'kW','Parameter for player','Sunlight/Production','parametre',name)
 
 #affichage imbalances"
 
@@ -81,10 +81,10 @@ vis.plot_2(imbalances[0],'%','Imbalances','figure_imbalances.png',name)
 
 #affichage grid_load"
 
-vis.plot_2(grid_load[0],'MW','Economic balance','figure_grid_load.png',name)
+vis.plot_2(grid_load[0],'kW','Economic balance','figure_grid_load.png',name)
 
 #affichage prices"
 
-vis.plot_3(prices[0],'€/MWh',"Electricity price ",'figure_prices.png',name)
+vis.plot_3(prices[0],'€/kWh',"Electricity price ",'figure_prices.png',name)
 
 print(time.time()-t)
