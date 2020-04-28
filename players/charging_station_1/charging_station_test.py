@@ -6,14 +6,14 @@ from player import Player
 Player = Player()
 
 for t in range(48):
-    load = Player.compute_load(t,0)
+    load = Player.compute_load(t,{"departures" : [1,1,1,1],"arrivals": [0,0,0,0]})
     if t==12:
-        Player.observe(t,{"departures" : [1,1,1,1],"arrivals": [0,0,0,0]},{"internal":0,"external_sale":0,"external_purchase":0},0)
+        load = Player.compute_load(t,{"departures" : [1,1,1,1],"arrivals": [0,0,0,0]})
     elif t==36:
-        Player.observe(t,{"departures" : [0,0,0,0],"arrivals": [1,1,1,1]},{"internal":0,"external_sale":0,"external_purchase":0},0)
+        load = Player.compute_load(t,{"departures" : [0,0,0,0],"arrivals": [1,1,1,1]})
     else:
-        Player.observe(t,{"departures" : [0,0,0,0],"arrivals": [0,0,0,0]},{"internal":0,"external_sale":0,"external_purchase":0},0)
-    
+        load = Player.compute_load(t,{"departures" : [0,0,0,0],"arrivals": [0,0,0,0]})
+
     Player.penalty(t)
     print(load)
 

@@ -141,7 +141,7 @@ class Player:
 
 
     def compute_load(self,time,data):
-        
+
         for i in range(4):   #the players discovers in live if the car is leaving or returning in the station
             if data["departures"][i]==1 and i<2:
                 self.depart["slow"][i]=time
@@ -152,7 +152,7 @@ class Player:
                 self.arrival["slow"][i]=time
             if data["arrivals"][i]==1 and i>1:
                 self.arrival["fast"][i-2]=time
-        
+
         load_battery = self.take_decision(time) # How you charge or discharge is the players choice
         load = self.update_battery_stock(time, load_battery)
         for i in range(2):
@@ -174,13 +174,13 @@ class Player:
         self.bill = np.zeros(self.horizon)
         self.load = np.zeros(self.horizon)
         self.load_battery_periode = {"fast" : np.zeros((self.horizon,2)),"slow" : np.zeros((self.horizon,2))}
-        
+
         last_bat = {"slow": self.battery_stock["slow"][-1,:], "fast": self.battery_stock["fast"][-1,:]}
         self.battery_stock = {"slow" : np.zeros((self.horizon+1,2)), "fast" : np.zeros((self.horizon+1,2))}
         self.battery_stock["slow"][0] = last_bat["slow"]
         self.battery_stock["fast"][0] = last_bat["fast"]
-        
-        
+
+
         self.nb_slow = 2
         self.nb_fast = 2
         self.here = {"slow" : np.ones(2), "fast" : np.ones(2)}
