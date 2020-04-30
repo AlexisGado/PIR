@@ -1,27 +1,74 @@
 {
     "0":
     {
-        "url": "",
-        "folder": "industrial_consumer_1",
+        "url": "https://github.com/jderre/industrial-consumer.git",
+        "folder": "industrial_consumer_Derre",
         "type": "industrial_consumer"
     },
 
 
     "1":
     {
-        "url": "",
-        "folder": "solar_farm_1",
-        "type": "solar_farm"
+      "url": "https://github.com/DiegoEdeline/industrial-consumer.git",
+      "folder": "industrial_consumer_Edeline",
+      "type": "industrial_consumer"
     },
 
     "2":
     {
-        "url": "",
-        "folder": "charging_station_1",
+      "url": "https://github.com/GuillaumeRussias/industrial-consumer.git",
+      "folder": "industrial_consumer_Russias",
+      "type": "industrial_consumer"
+    },
+
+    "3":
+    {
+        "url": "https://github.com/emmabeuze/solar-farm.git",
+        "folder": "solar_farm_Graczyk",
+        "type": "solar_farm"
+    },
+
+
+    "4":
+    {
+        "url": "https://github.com/emmabeuze/solar-farm.git",
+        "folder": "solar_farm_Beuze",
+        "type": "solar_farm"
+    },
+
+    "5":
+    {
+        "url": "https://github.com/EmmaChevalier/solar-farm.git",
+        "folder": "solar_farm_Chevalier",
+        "type": "solar_farm"
+    },
+
+    "6":
+    {
+        "url": "https://github.com/Hugues240/solar-farm.git",
+        "folder": "solar_farm_Bouffard",
+        "type": "solar_farm"
+    },
+
+    "7":
+    {
+        "url": "https://github.com/ubar47/charging-station.git",
+        "folder": "charging_station_Rhim",
+        "type": "charging_station"
+    },
+
+    "8":
+    {
+        "url": "https://github.com/NonoGitHub/charging-station.git",
+        "folder": "charging_station_Rubin",
+        "type": "charging_station"
+    },
+
+    "9":
+    {
+        "url": "https://github.com/mathbri/charging-station.git",
+        "folder": "charging_station_Brichet",
         "type": "charging_station"
     }
-
-
-
 
 }

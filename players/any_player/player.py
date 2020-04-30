@@ -4,9 +4,9 @@
 
 class Player:
 
-	def __init__(self):
+	def __init__(self, parameters):
 		# some player might not have parameters
-		self.parameters = 3
+		self.parameters = parameters
 
 	def take_decision(self, time):
 		# TO BE COMPLETED
@@ -17,7 +17,7 @@ class Player:
 		# do stuff ?
 		return load
 
-	def observe(self, time, data_scenario, price,data_player):
+	def observe(self, time, data, price):
 		# save observations for decision making
 		pass
 

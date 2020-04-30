@@ -8,7 +8,7 @@ import os
 
 class Manager():
     
-    def __init__(self, path_to_player_file,path_to_price_file): #constructor
+    def __init__(self, path_to_player_file, path_to_price_file):
         
         self.horizon = 48
         self.dt = 0.5
@@ -17,7 +17,6 @@ class Manager():
         self.nb_players = {"charging_station":0,"industrial_consumer":0,"solar_farm":0}
 
         self.players = self.initialize_players(path_to_player_file)
-        
         self.prices = self.initialize_prices(path_to_price_file)
         self.data_scenario=self.initialize_data_scenario()
         
@@ -26,56 +25,54 @@ class Manager():
         
         self.scenario={}
 
-
-
     def initialize_players(self, json_file):
+        """initialize all players"""
 
         with open(json_file) as f:
             players = json.load(f)
             
-
         new_players = {}
 
         for idx in players:
             
             self.nb_players[players[idx]["type"]] +=1
-            
             self.nb_tot_players+=1
+
             mod = __import__("players.{}.player".format(players[idx]["folder"]), 
                 fromlist=["Player"])
             Player = getattr(mod, "Player")
-            new_player = Player() # if you want to initialize with parameters, you have to distinguish types of players... do we want that ?
-            
-            new_players[idx] = {"class":new_player, "type":players[idx]["type"],"name":players[idx]["folder"] }
+            new_player = Player() 
+            new_players[idx] = {"class":new_player, "type":players[idx]["type"],
+                "name":players[idx]["folder"] }
             
         return new_players
-        
-## Initialize the prices for the day
 
     def initialize_prices(self, path_to_price_file):
-        
-        prices=np.loadtxt("data/prices.csv") #internal prices, external purchase prices, external sale prices
-        dico_prices={"internal" : prices[0, :], "external_purchase" : prices[1, :], "external_sale" : prices[2, :]}
+        """initialize daily prices"""
+
+        prices=np.loadtxt(path_to_price_file) #internal trade, external purchase, external sale
+        dico_prices={"internal" : prices[0, :], "external_purchase" : prices[1, :], 
+            "external_sale" : prices[2, :]}
+
         return dico_prices
 
-
-## Initialize all the scenarios possible
-
     def initialize_data_scenario(self):
+        """initialize daily scenarios"""
         
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.join(this_dir, "data")
         dico_data_scenario={}
         
         for idx,dico in self.players.items():
             
             if dico["type"] == "charging_station":
                 
-                dico_data_scenario[dico["name"]] = np.genfromtxt("players/"+dico["name"]+"/data.csv",delimiter= ";") #departure and arrival time of each car
-                
-            elif dico["type"] == "industrial_consumer":
-                dico_data_scenario[dico["name"]] = np.loadtxt("players/"+dico["name"]+"/data.csv")/2
-                
+                dico_data_scenario[dico["name"]] = np.genfromtxt(os.path.join(data_dir, 
+                    dico["name"], "data.csv"), delimiter=";") #departure and arrival time of each car
+        
             else:
-                dico_data_scenario[dico["name"]] = np.loadtxt("players/"+dico["name"]+"/data.csv")
+                dico_data_scenario[dico["name"]] = np.loadtxt(os.path.join(data_dir, 
+                    dico["name"], "data.csv"))
             
         return dico_data_scenario
         
@@ -222,16 +219,6 @@ class Manager():
             
             if dico["type"] == "charging_station":
                 
-                # departure=[0]*4  #departure[i]=1 if the car i leaves the station at t
-                # arrival=[0]*4    #arrival[i]=1 if the car i arrives in the station at t
-                # 
-                # for i in range(4):
-                #     if t==self.scenario[dico["name"]][0,i]:
-                #         departure[i]=1
-                #     if t==self.scenario[dico["name"]][1,i]:
-                #         arrival[i]=1
-                # 
-                # data_to_player = {"departures":departure , "arrivals":arrival}
                 
                 data_to_player = 0
                 
@@ -274,11 +261,16 @@ class Manager():
     def simulate(self,nb_simulation,simulation_name):
         
         ##create a folder
-        
-        os.mkdir(simulation_name)
-        os.mkdir(simulation_name+"/data_visualize")
-        os.mkdir(simulation_name+"/plot")
-        
+        for name in [simulation_name, simulation_name+"/data_visualize", 
+            simulation_name+"/plot"]:
+            
+            try:
+                os.mkdir(name)
+            except OSError as err:
+                if os.path.isdir(name):
+                    pass
+                else:
+                    print(err)
         
         ##Init tabs infos
         
@@ -290,6 +282,7 @@ class Manager():
         tab_bill = {}
         tab_battery_stock_IC_SF = {}
         tab_battery_stock_CS = {}
+        mean_bill = {}
         
         for idx,dico in self.players.items():
             
@@ -361,8 +354,14 @@ class Manager():
                     
                 
             
-            
             self.reset()
+            
+        for idx,dico in self.players.items():
+            name = dico["name"]
+            sum=np.zeros(nb_simulation)  
+            for j in range(nb_simulation):
+                sum[j]=np.sum(tab_bill[name][j,:])
+            mean_bill[name]=np.mean(sum)
             
             
         np.save(simulation_name+"/data_visualize/imbalance_simulation",np.array([tab_imbalance]))
@@ -374,4 +373,5 @@ class Manager():
         np.save(simulation_name+"/data_visualize/scenario_simulation_IC_SF",np.array([tab_scenario_IC_SF]))
         np.save(simulation_name+"/data_visualize/scenario_simulation_CS",np.array([tab_scenario_CS]))
         np.save(simulation_name+"/data_visualize/grid_load_simulation",np.array([tab_grid_load]))
+        np.save(simulation_name+"/data_visualize/mean_bill_simulation",np.array([mean_bill]))
         

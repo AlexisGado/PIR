@@ -2,13 +2,15 @@ import numpy as np
 from simulate import Manager
 import time
 import visualize as vis
+import os
 
-name='Premiere_simulation_1000j'
-
+name='Premiere_simulation_sans_Derre'
+this_dir = os.path.dirname(os.path.abspath(__file__))
 t = time.time()
 
+manager = Manager(os.path.join(this_dir, "data", "players.json"),
+	os.path.join(this_dir, "data", "prices.csv"))
 
-manager = Manager("data/players.json","data/prices.csv")
 manager.simulate(1000,name)
 
 
@@ -33,6 +35,8 @@ scenarios_IC_SF=np.load(name+"/data_visualize/scenario_simulation_IC_SF.npy")
 
 scenarios_CS=np.load(name+"/data_visualize/scenario_simulation_CS.npy") 
 # keys : players (only CS)  -- objects : nb_simul*2(departures/arrivals)*nb_cars
+
+mean_bills=np.load(name+"/data_visualize/mean_bill_simulation.npy") 
 
 
 
@@ -73,18 +77,22 @@ vis.plotCS(batteries_CS[0],'kWh','Average battery level for player','Level', 'ba
 
 #affichage scenario IC_SF"
 
-vis.plottotal(scenarios_IC_SF[0],'kW','Parameter for player','Sunlight/Production','parametre',name)
+vis.plottotal(scenarios_IC_SF[0],'kW','Scenario for player','Sunlight/Demand','scenario',name)
 
 #affichage imbalances"
 
-vis.plot_2(imbalances[0],'%','Imbalances','figure_imbalances.png',name)
+vis.plot_2(imbalances[0],'%','Proportion of internal trades','figure_imbalances.png', "demand cover","supply cover",name)
 
 #affichage grid_load"
 
-vis.plot_2(grid_load[0],'kW','Economic balance','figure_grid_load.png',name)
+vis.plot_2(grid_load[0],'kW','Energy balance','figure_grid_load.png',"demand" , "supply" ,name)
 
 #affichage prices"
 
 vis.plot_3(prices[0],'€/kWh',"Electricity price ",'figure_prices.png',name)
+
+#affichage scores
+
+vis.plot_4(mean_bills[0], name)
 
 print(time.time()-t)
