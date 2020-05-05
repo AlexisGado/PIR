@@ -149,22 +149,12 @@ class Manager():
         internal_price=self.mean_prices["internal"][time]
         external_selling_price=self.mean_prices["external_sale"][time]
         external_purchasing_price=self.mean_prices["external_purchase"][time]
-
-        if total_load>=0:  #if there is not enough energy on the grid
-            
-            proportion_internal_demand=internal_exchange/demand
-            proportion_internal_supply=1
-            
-            purchase_price=internal_price*proportion_internal_demand + external_purchasing_price*(1-proportion_internal_demand)
-            sale_price=internal_price
         
-        else :   #if the offer is too consequent on the grid
-            
-            proportion_internal_demand=1
-            proportion_internal_supply=internal_exchange/supply
-            
-            purchase_price=internal_price
-            sale_price= internal_price*proportion_internal_supply + external_selling_price*(1-proportion_internal_supply)
+        proportion_internal_demand=internal_exchange/demand
+        proportion_internal_supply=internal_exchange/supply
+        
+        purchase_price=internal_price*proportion_internal_demand + external_purchasing_price*(1-proportion_internal_demand)
+        sale_price=internal_price*proportion_internal_supply + external_selling_price*(1-proportion_internal_supply)
         
         self.imbalance[0][time] = proportion_internal_demand
         self.imbalance[1][time] = proportion_internal_supply
