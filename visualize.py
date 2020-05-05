@@ -202,6 +202,47 @@ def plot_4(dico, name_simulation):
     ws.append(bills)
     
     wb.save(name_simulation+"/plot/score.xlsx")
+
+def plot_5(Tab,unite,titre,path, name_simulation):
+    
+        
+    "Pour prices"
+    
+    T=Tab['purchase'].shape[1]
+    N=Tab['purchase'].shape[0]
+    purchase=np.zeros(T)
+    sale=np.zeros(T)
+    E_purch=np.zeros(T)
+    E_sale=np.zeros(T)
+    
+    for t in range(T):
+        purchase[t]=np.mean(Tab['purchase'][:,t])
+        sale[t]=np.mean(Tab['sale'][:,t])
+        E_purch[t]=np.std(Tab['purchase'][:,t])
+        E_sale[t]=np.std(Tab['sale'][:,t])
+        
+        
+    ind=np.arange(T)
+    width=0.5
+
+    fig, ax = plt.subplots()
+    
+    p1=ax.plot(ind,purchase, label='purchase', color='r')
+    p2=ax.plot(ind,sale, label='sale',color='b')
+    
+    ax.set_ylabel(unite)
+    ax.set_title(titre)
+    ax.set_xlabel('time')
+    
+    ax.legend(loc='upper left')
+    ax.autoscale(True,axis='y')
+    ax.set_xticks(ticks=xticks)
+
+
+    plt.savefig(name_simulation+"/plot/"+path)
+    
+    #plt.show()
+    plt.close()
   
 
 def plottotal(dico, unite, titre, labl, path_to_data,name_simulation):
