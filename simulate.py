@@ -150,8 +150,16 @@ class Manager():
         external_selling_price=self.mean_prices["external_sale"][time]
         external_purchasing_price=self.mean_prices["external_purchase"][time]
         
-        proportion_internal_demand=internal_exchange/demand
-        proportion_internal_supply=internal_exchange/supply
+        
+        if demand==0:
+            proportion_internal_demand=1
+        else:
+            proportion_internal_demand=internal_exchange/demand
+            
+        if supply==0:
+            proportion_internal_supply=1
+        else:
+            proportion_internal_supply=internal_exchange/supply
         
         purchase_price=internal_price*proportion_internal_demand + external_purchasing_price*(1-proportion_internal_demand)
         sale_price=internal_price*proportion_internal_supply + external_selling_price*(1-proportion_internal_supply)
@@ -331,7 +339,7 @@ class Manager():
                     new_bat = np.transpose(new_bat)
                     
                     tab_battery_stock_CS[name][i] = new_bat
-                    tab_score[name][i]=tab_bill[name][i]-16*np.mean(self.real_prices["purchase"]) 
+                    tab_score[name][i]=np.sum(tab_bill[name][i])-16*np.mean(self.real_prices["purchase"]) 
                     #we substract the neutral bill to sustain
                 else:
                     tab_scenario_IC_SF[name][i] = self.scenario[name]
@@ -340,9 +348,10 @@ class Manager():
                     tab_battery_stock_IC_SF[name][i] = player.battery_stock
                     
                     if dico["type"]=="solar_farm":
-                        tab_score[name][i]=tab_bill[name][i]+np.dot(np.array(player.sun),self.real_prices['sale'])
+                        tab_score[name][i]=np.sum(tab_bill[name][i])+self.dt*np.dot(np.array(player.sun),self.real_prices['sale'])
+                        
                     else:
-                        tab_score[name][i]=tab_bill[name][i]+np.dot(np.array(player.demand),self.real_prices['purchase'])
+                        tab_score[name][i]=np.sum(tab_bill[name][i])-self.dt*np.dot(np.array(player.demand),self.real_prices['purchase'])
                     
                         
                         
