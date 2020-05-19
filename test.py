@@ -4,14 +4,13 @@ import time
 import visualize as vis
 import os
 
-name='Simulation_real_prices_2_var'
+name='test_penalty'
 this_dir = os.path.dirname(os.path.abspath(__file__))
 t = time.time()
 
-manager = Manager(os.path.join(this_dir, "data", "players.json"),
-	os.path.join(this_dir, "data", "prices.csv"))
+manager = Manager(os.path.join(this_dir, "data", "players.json"),os.path.join(this_dir, "data", "prices.csv"))
 
-manager.simulate(1000,name)
+manager.simulate(10,name)
 
 
 # All npy files are dictionaries (inside a 1 length array)
@@ -86,6 +85,8 @@ vis.plot_2(imbalances[0],'%','Proportion of internal trades','figure_imbalances.
 #affichage grid_load"
 
 vis.plot_2(grid_load[0],'kW','Energy balance','figure_grid_load.png',"demand" , "supply" ,name)
+
+vis.plot_2_bis(grid_load[0],'kW','Relative load of the grid','figure_relative_load.png',"relative_load",name)
 
 #affichage prices"
 

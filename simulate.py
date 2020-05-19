@@ -12,6 +12,8 @@ class Manager():
         
         self.horizon = 48
         self.dt = 0.5
+        self.critical_load=200
+        self.penalty_price=0.1
         
         self.nb_tot_players = 0
         self.nb_players = {"charging_station":0,"industrial_consumer":0,"solar_farm":0}
@@ -140,7 +142,41 @@ class Manager():
         
         return  demand, supply
 
-
+    def compute_penalty(self, time, total_load,demand,supply):
+        
+        if total_load> self.critical_load:
+            
+            print("pénalité de demande")
+            for idx,dico in self.players.items():
+                
+                player = dico["class"]
+    
+                load=player.load[time]
+                
+                if load>0:
+                    
+                    penalty=(total_load-self.critical_load)*(load/demand)*self.penalty_price
+                    
+                    player.bill[time]+= penalty
+                    
+        if -total_load> self.critical_load:
+            
+            print("pénalité d'offre'")
+            
+            for idx,dico in self.players.items():
+                
+                player = dico["class"]
+    
+                load=player.load[time]
+                
+                if load<0:
+                    
+                    
+                    penalty=(-total_load-self.critical_load)*(-load/supply)*self.penalty_price
+                    
+                    player.bill[time]+= penalty
+                    
+            
     ## Compute the bill of each players 
     def compute_bills(self, time, demand, supply):
         total_load=demand-supply    #total load of the grid
@@ -150,6 +186,7 @@ class Manager():
         external_selling_price=self.mean_prices["external_sale"][time]
         external_purchasing_price=self.mean_prices["external_purchase"][time]
         
+        self.compute_penalty(time,total_load,demand,supply)
         
         if demand==0:
             proportion_internal_demand=1
@@ -339,7 +376,7 @@ class Manager():
                     new_bat = np.transpose(new_bat)
                     
                     tab_battery_stock_CS[name][i] = new_bat
-                    tab_score[name][i]=np.sum(tab_bill[name][i])-16*np.mean(self.real_prices["purchase"]) 
+                    tab_score[name][i]=np.sum(tab_bill[name][i])
                     #we substract the neutral bill to sustain
                 else:
                     tab_scenario_IC_SF[name][i] = self.scenario[name]
