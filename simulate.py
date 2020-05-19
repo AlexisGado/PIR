@@ -150,29 +150,47 @@ class Manager():
             for idx,dico in self.players.items():
                 
                 player = dico["class"]
+                type = dico["type"]
+                name = dico["name"]
     
                 load=player.load[time]
                 
-                if load>0:
+                if type == "industrial_consumer":
+                    load_bat = load-self.scenario[name][time]
+                elif type == "solar_farm":
+                    load_bat = load+self.scenario[name][time]
+                else:
+                    load_bat = load
+                
+                if load_bat>0:
                     
-                    penalty=(total_load-self.critical_load)*(load/demand)*self.penalty_price
+                    penalty=(total_load-self.critical_load)*(load_bat/demand)*self.penalty_price
                     
                     player.bill[time]+= penalty
                     
         if -total_load> self.critical_load:
             
-            print("pénalité d'offre'")
+            print("pénalité d'offre")
             
             for idx,dico in self.players.items():
                 
                 player = dico["class"]
-    
+                type = dico["type"]
+                name = dico["name"]
+                
                 load=player.load[time]
                 
-                if load<0:
+                if type == "industrial_consumer":
+                    load_bat = load-self.scenario[name][time]
+                elif type == "solar_farm":
+                    load_bat = load+self.scenario[name][time]
+                else:
+                    load_bat = load
+                
+                if load_bat<0:
                     
                     
-                    penalty=(-total_load-self.critical_load)*(-load/supply)*self.penalty_price
+                    penalty=(-total_load-self.critical_load)*(-load_bat/supply)*self.penalty_price
                     
                     player.bill[time]+= penalty
                     
