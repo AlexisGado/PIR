@@ -12,7 +12,7 @@ class Manager():
         
         self.horizon = 48
         self.dt = 0.5
-        self.critical_load=200
+        self.critical_load=200*3/10
         self.penalty_price=0.1
         
         self.nb_tot_players = 0
@@ -146,7 +146,6 @@ class Manager():
         
         if total_load> self.critical_load:
             
-            print("pénalité de demande")
             for idx,dico in self.players.items():
                 
                 player = dico["class"]
@@ -162,15 +161,15 @@ class Manager():
                 else:
                     load_bat = load
                 
-                if load_bat>0:
-                    
-                    penalty=(total_load-self.critical_load)*(load_bat/demand)*self.penalty_price
-                    
-                    player.bill[time]+= penalty
+                
+                
+                penalty=(total_load-self.critical_load)*(load_bat/demand)*self.penalty_price
+                
+                player.bill[time]+= penalty
+                player.penalty[time]+=penalty
                     
         if -total_load> self.critical_load:
             
-            print("pénalité d'offre")
             
             for idx,dico in self.players.items():
                 
@@ -187,13 +186,14 @@ class Manager():
                 else:
                     load_bat = load
                 
-                if load_bat<0:
+                
                     
                     
-                    penalty=(-total_load-self.critical_load)*(-load_bat/supply)*self.penalty_price
-                    
-                    player.bill[time]+= penalty
-                    
+                penalty=(-total_load-self.critical_load)*(-load_bat/supply)*self.penalty_price
+                
+                player.bill[time]+= penalty
+                player.penalty[time]+=penalty
+                
             
     ## Compute the bill of each players 
     def compute_bills(self, time, demand, supply):
@@ -257,6 +257,7 @@ class Manager():
             
             player = dico["class"]
             
+            relative_load=self.grid_load['demand'][t] - self.grid_load['supply'][t]
             if dico["type"] == "charging_station":
                 
                 
@@ -267,7 +268,7 @@ class Manager():
                 
                 data_to_player = self.scenario[dico["name"]][t]
             
-            player.observe(t,data_to_player,prices,{"purchase_cover": self.imbalance[0][t],"sale_cover":self.imbalance[1][t]})
+            player.observe(t,data_to_player,prices,{"purchase_cover": self.imbalance[0][t],"sale_cover":self.imbalance[1][t]},relative_load)
            
 
 
@@ -322,17 +323,21 @@ class Manager():
         tab_scenario_CS = {}
         tab_load = {}
         tab_bill = {}
+        tab_penalty={}
         tab_battery_stock_IC_SF = {}
         tab_battery_stock_CS = {}
         mean_bill = {}
         tab_score={}
         score={}
+        penalty={}
+
         
         for idx,dico in self.players.items():
             
             name = dico["name"]
             tab_load[name] = np.zeros((nb_simulation,self.horizon))
             tab_bill[name] = np.zeros((nb_simulation,self.horizon))
+            tab_penalty[name] = np.zeros((nb_simulation,self.horizon))
             tab_score[name]=np.zeros(nb_simulation)
             
             if dico["type"]=="charging_station":
@@ -383,7 +388,7 @@ class Manager():
                 
                 tab_load[name][i] = player.load
                 tab_bill[name][i] = player.bill
-                
+                tab_penalty[name][i] = player.penalty
                 
                 if dico["type"]=="charging_station":
                     
@@ -417,12 +422,15 @@ class Manager():
             
         for idx,dico in self.players.items():
             name = dico["name"]
-            sum=np.zeros(nb_simulation)  
+            sum_bill=np.zeros(nb_simulation) 
+            sum_penalty=np.zeros(nb_simulation) 
             for j in range(nb_simulation):
-                sum[j]=np.sum(tab_bill[name][j,:])
+                sum_bill[j]=np.sum(tab_bill[name][j,:])
+                sum_penalty[j]=np.sum(tab_penalty[name][j,:])
             
-            mean_bill[name]=np.mean(sum)
+            mean_bill[name]=np.mean(sum_bill)
             score[name]=np.mean(tab_score[name])
+            penalty[name]=np.mean(sum_penalty)
             
             
             
@@ -438,3 +446,5 @@ class Manager():
         np.save(simulation_name+"/data_visualize/mean_bill_simulation",np.array([mean_bill]))
         np.save(simulation_name+"/data_visualize/real_price_simulation",np.array([tab_real_price]))
         np.save(simulation_name+"/data_visualize/score_simulation",np.array([score]))
+        np.save(simulation_name+"/data_visualize/penalty_simulation",np.array([tab_penalty]))
+        np.save(simulation_name+"/data_visualize/daily_penalty_simulation",np.array([penalty]))
